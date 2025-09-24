@@ -209,7 +209,6 @@ func collectAllMetrics() GlobalMetrics {
 		ZFSConfig: ZFSConfig{PoolName: "rpool", PoolStatus: "ONLINE", DataVdevs: []ZPoolVdev{{Name: "raidz1-0", Status: "ONLINE", Devices: []string{"disk-01", "disk-02", "disk-03", "disk-04"}},{Name: "raidz1-1", Status: "ONLINE", Devices: []string{"disk-05", "disk-06", "disk-07", "disk-08"}}}, CacheVdev: &ZPoolVdev{Name: "L2ARC", Status: "ONLINE", Devices: []string{"nvme-Samsung-970-Evo"}}},
 		ARCCache: ARCCache{ARCSize: "66.1 GB", ARCTargetSize: "65.0 GB", ARCHitRate: "98.1%", ARCHitRateNum: 98.1, L2ARCSize: "485.0 GB", L2ARCHitRate: "70.5 %"},
 		Docker: DockerInfo{Containers: 25, Images: 132, Volumes: 38},
-		Streaming: StreamingInfo{Films: 1950, Series: 820, Animes: 360, Playing: 3, Transcoding: 1},
 	}
 	return metrics
 }
