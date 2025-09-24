@@ -193,6 +193,8 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     .zfs-layout { flex-direction: column; }
     .cache-stats-container { flex-direction: column; }
     .library-counts { flex-direction: column; gap: calc(var(--spacing-unit)*2); }
+    .container { padding: var(--spacing-unit); }
+    .header { padding: var(--spacing-unit); }
 }
 /* --- DARK MODE --- */
 body.dark-mode {
