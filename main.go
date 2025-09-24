@@ -474,6 +474,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		prevCPUTimes = currentCPUTimes
 		tempStr, tempDeg := getCPUTemp()
 
+		metrics := collectAllMetrics()
+
 		currentNetCounters, err := getNetCounters(netInterface)
 		if err != nil {
 			log.Printf("Erreur getNetCounters: %v", err)
@@ -492,8 +494,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 
 		prevTime = currentTime
-
-		metrics := collectAllMetrics()
 
 		metrics.CPU = CPUInfo{
 			Usage:   fmt.Sprintf("%.0f%%", cpuUsagePercent),
