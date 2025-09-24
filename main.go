@@ -222,6 +222,122 @@ func getSystemInfo() SystemInfo {
 	}
 }
 
+func getARCCacheInfo() ARCCache {
+	out, err := runCommand("arc_summary")
+	if err != nil {
+		log.Printf("Erreur getARCCacheInfo: %v", err)
+		return ARCCache{}
+	}
+
+	cache := ARCCache{}
+	lines := strings.Split(out, "\n")
+
+	for _, line := range lines {
+		// On ne garde que les 2 premiers "mots" de chaque ligne pour simplifier
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+
+		// On cherche les lignes par leur préfixe
+		switch {
+		case strings.HasPrefix(line, "ARC Size:"):
+			// Ex: "ARC Size:              100.00% 64.00 GiB"
+			if len(fields) >= 5 {
+				cache.ARCSize = fields[4] + " " + fields[5]
+			}
+		case strings.HasPrefix(line, "ARC Target Size:"):
+			if len(fields) >= 6 {
+				cache.ARCTargetSize = fields[5] + " " + fields[6]
+			}
+		case strings.HasPrefix(line, "ARC Hit Ratio:"):
+			if len(fields) >= 4 {
+				// On garde le pourcentage, ex: "98.1%"
+				percentStr := strings.Trim(fields[3], "()")
+				cache.ARCHitRate = percentStr
+				// On garde la valeur numérique pour le graphique
+				cache.ARCHitRateNum, _ = strconv.ParseFloat(strings.TrimRight(percentStr, "%"), 64)
+			}
+		case strings.HasPrefix(line, "L2ARC Size (actual):"):
+			if len(fields) >= 6 {
+				cache.L2ARCSize = fields[5] + " " + fields[6]
+			}
+		case strings.HasPrefix(line, "L2ARC Hit Ratio:"):
+			if len(fields) >= 4 {
+				cache.L2ARCHitRate = strings.Trim(fields[3], "()")
+			}
+		}
+	}
+	return cache
+}
+
+func getZFSConfig() ZFSConfig {
+	out, err := runCommand("zpool", "status")
+	if err != nil {
+		log.Printf("Erreur getZFSConfig: %v", err)
+		return ZFSConfig{}
+	}
+
+	config := ZFSConfig{}
+	var currentVdev *ZPoolVdev
+	inConfigSection := false
+
+	lines := strings.Split(out, "\n")
+	for _, line := range lines {
+		// On cherche la ligne "config:" pour commencer le parsing
+		if strings.HasPrefix(line, " config:") {
+			inConfigSection = true
+			continue
+		}
+		if !inConfigSection || line == "" {
+			continue // On ignore tout ce qui n'est pas dans la section config
+		}
+		
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+
+		// Si la ligne n'est pas indentée, c'est le nom du pool
+		if !strings.HasPrefix(line, " ") {
+			config.PoolName = fields[0]
+			config.PoolStatus = fields[1]
+			continue
+		}
+
+		// Gestion des vdevs (raidz, mirror, cache, etc.)
+		deviceName := fields[0]
+		deviceStatus := fields[1]
+
+		if strings.HasPrefix(line, "  ") && !strings.HasPrefix(line, "    ") {
+			// C'est un vdev principal (indentation de 2 espaces)
+			newVdev := ZPoolVdev{Name: deviceName, Status: deviceStatus}
+			currentVdev = &newVdev
+
+			// On détermine si c'est un vdev de données ou de cache
+			if strings.Contains(deviceName, "raidz") || strings.Contains(deviceName, "mirror") {
+				config.DataVdevs = append(config.DataVdevs, newVdev)
+			} else if strings.Contains(deviceName, "cache") || strings.Contains(deviceName, "L2ARC") {
+				config.CacheVdev = &newVdev
+			}
+		} else if strings.HasPrefix(line, "    ") && currentVdev != nil {
+			// C'est un disque à l'intérieur d'un vdev (indentation > 2 espaces)
+			// On cherche l'index du vdev courant dans la bonne liste pour y ajouter le disque
+			if config.CacheVdev != nil && config.CacheVdev.Name == currentVdev.Name {
+				config.CacheVdev.Devices = append(config.CacheVdev.Devices, deviceName)
+			} else {
+				for i := range config.DataVdevs {
+					if config.DataVdevs[i].Name == currentVdev.Name {
+						config.DataVdevs[i].Devices = append(config.DataVdevs[i].Devices, deviceName)
+						break
+					}
+				}
+			}
+		}
+	}
+	return config
+}
+
 func getDockerInfo() DockerInfo {
 	containersOut, _ := runCommand("docker", "ps", "--format", "{{.ID}}")
 	imagesOut, _ := runCommand("docker", "images", "--format", "{{.ID}}")
@@ -246,13 +362,13 @@ func collectAllMetrics() GlobalMetrics {
 		System: getSystemInfo(),
 		Streaming: getStreamingInfo(),
 		Docker: getDockerInfo(),
+		ZFSConfig: getZFSConfig(),
+		ARCCache:  getARCCacheInfo(), 
 		
 		// Mocked data for now
 		CPU: CPUInfo{Usage: "72%", Temp: "51.2°C", TempDeg: 51.2},
 		Disk: DiskInfo{Total: "8 TB", Used: "4.5 TB", Free: "3.5 TB", Percent: "56.2%", PercentNum: 56.2},
 		Net: NetTraffic{In: "5.7 MB/s", Out: "1.2 MB/s"},
-		ZFSConfig: ZFSConfig{PoolName: "rpool", PoolStatus: "ONLINE", DataVdevs: []ZPoolVdev{{Name: "raidz1-0", Status: "ONLINE", Devices: []string{"disk-01", "disk-02", "disk-03", "disk-04"}},{Name: "raidz1-1", Status: "ONLINE", Devices: []string{"disk-05", "disk-06", "disk-07", "disk-08"}}}, CacheVdev: &ZPoolVdev{Name: "L2ARC", Status: "ONLINE", Devices: []string{"nvme-Samsung-970-Evo"}}},
-		ARCCache: ARCCache{ARCSize: "66.1 GB", ARCTargetSize: "65.0 GB", ARCHitRate: "98.1%", ARCHitRateNum: 98.1, L2ARCSize: "485.0 GB", L2ARCHitRate: "70.5 %"},
 	}
 	return metrics
 }

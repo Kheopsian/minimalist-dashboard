@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o /dashboard-api
 # --- STAGE 2 : FINAL ---
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates docker-cli
+RUN apk --no-cache add ca-certificates docker-cli zfs
 
 WORKDIR /app
 
