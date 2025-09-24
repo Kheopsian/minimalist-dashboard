@@ -21,6 +21,11 @@ type CPUInfo struct {
 	TempDeg  float64 `json:"tempDeg"`
 }
 
+type NetCounters struct {
+	RxBytes float64
+	TxBytes float64
+}
+
 type CPUTimes struct {
 	Idle  float64
 	Total float64
@@ -109,6 +114,41 @@ func runCommand(name string, args ...string) (string, error) {
 		return "", fmt.Errorf("error executing '%s %v': %w", name, args, err)
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func getNetCounters() (NetCounters, error) {
+	content, err := os.ReadFile("/proc/net/dev")
+	if err != nil {
+		return NetCounters{}, err
+	}
+
+	counters := NetCounters{}
+	lines := strings.Split(string(content), "\n")
+
+	for _, line := range lines[2:] {
+		fields := strings.Fields(line)
+		if len(fields) < 10 {
+			continue
+		}
+		interfaceName := strings.TrimRight(fields[0], ":")
+
+		if interfaceName == "lo" {
+			continue
+		}
+
+		rx, _ := strconv.ParseFloat(fields[1], 64)
+		tx, _ := strconv.ParseFloat(fields[9], 64)
+		counters.RxBytes += rx
+		counters.TxBytes += tx
+	}
+	return counters, nil
+}
+
+func formatSpeed(bytesPerSecond float64) string {
+	bitsPerSecond := bytesPerSecond * 8
+	megaBitsPerSecond := bitsPerSecond / 1000000
+	
+	return fmt.Sprintf("%.1f Mb/s", megaBitsPerSecond)
 }
 
 func getCPUTimes() (CPUTimes, error) {
@@ -396,7 +436,6 @@ func collectAllMetrics() GlobalMetrics {
 		ARCCache:  getARCCacheInfo(), 
 		
 		Disk: DiskInfo{Total: "8 TB", Used: "4.5 TB", Free: "3.5 TB", Percent: "56.2%", PercentNum: 56.2},
-		Net: NetTraffic{In: "5.7 MB/s", Out: "1.2 MB/s"},
 	}
 	return metrics
 }
@@ -409,51 +448,52 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil { log.Fatal(err) }
 	defer ws.Close()
-
 	fmt.Println("Nouveau client connecté au WebSocket")
 
-	// IMPORTANT: On stocke les temps CPU précédents ici, en dehors de la boucle
 	var prevCPUTimes CPUTimes
-	prevCPUTimes, _ = getCPUTimes() // Première mesure
+	prevCPUTimes, _ = getCPUTimes()
+
+	var prevNetCounters NetCounters
+	prevNetCounters, _ = getNetCounters()
+
+	prevTime := time.Now()
 
 	for {
-        time.Sleep(2 * time.Second) // On attend d'abord 2 secondes
+		time.Sleep(2 * time.Second)
+		currentTime := time.Now()
+		elapsedSeconds := currentTime.Sub(prevTime).Seconds()
 
-		// Deuxième mesure
-		currentCPUTimes, err := getCPUTimes()
-		if err != nil {
-			log.Printf("Erreur getCPUTimes: %v", err)
-			continue
-		}
-
-		// Calcul du delta
+		currentCPUTimes, _ := getCPUTimes()
 		deltaIdle := currentCPUTimes.Idle - prevCPUTimes.Idle
 		deltaTotal := currentCPUTimes.Total - prevCPUTimes.Total
-
 		cpuUsagePercent := 0.0
-		if deltaTotal > 0 {
-			cpuUsagePercent = (1.0 - deltaIdle/deltaTotal) * 100
-		}
-
-		// On met à jour l'état pour la prochaine itération
+		if deltaTotal > 0 { cpuUsagePercent = (1.0 - deltaIdle/deltaTotal) * 100 }
 		prevCPUTimes = currentCPUTimes
-
-		// On récupère la température
 		tempStr, tempDeg := getCPUTemp()
 
-		// On assemble toutes les métriques
+		currentNetCounters, _ := getNetCounters()
+		deltaRx := currentNetCounters.RxBytes - prevNetCounters.RxBytes
+		deltaTx := currentNetCounters.TxBytes - prevNetCounters.TxBytes
+		prevNetCounters = currentNetCounters
+
+		rxSpeed := deltaRx / elapsedSeconds
+		txSpeed := deltaTx / elapsedSeconds
+
+		prevTime = currentTime
+
 		metrics := collectAllMetrics()
+
 		metrics.CPU = CPUInfo{
 			Usage:   fmt.Sprintf("%.0f%%", cpuUsagePercent),
 			Temp:    tempStr,
 			TempDeg: tempDeg,
 		}
-
-		jsonMessage, err := json.Marshal(metrics)
-		if err != nil {
-			log.Printf("Erreur d'encodage JSON: %v", err)
-			continue
+		metrics.Net = NetTraffic{
+			In:  formatSpeed(rxSpeed),
+			Out: formatSpeed(txSpeed),
 		}
+
+		jsonMessage, _ := json.Marshal(metrics)
 		err = ws.WriteMessage(websocket.TextMessage, jsonMessage)
 		if err != nil {
 			log.Printf("Erreur d'envoi: %v", err)

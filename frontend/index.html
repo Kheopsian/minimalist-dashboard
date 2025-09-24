@@ -95,6 +95,16 @@
                 </div>
             </div>
 
+            <div class="metric-card">
+                <div class="metric-label">Network Traffic</div>
+                <div class="metric-value-small">
+                    <span class="direction">In:</span> <span id="net-in">-- Mb/s</span>
+                </div>
+                <div class="metric-value-small">
+                    <span class="direction">Out:</span> <span id="net-out">-- Mb/s</span>
+                </div>
+            </div>
+
             <div class="metric-card full-width" id="zfs-card">
                 <div class="metric-label">ZFS Pool Configuration</div>
                 <div class="zfs-header">
@@ -207,7 +217,7 @@
         if (cpuProgressBar) {
             cpuProgressBar.style.width = data.cpu.usage;
         }
-        
+
         // RAM Usage
         updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
         updateProgressBar('#ram-usage + .progress-bar-container .progress-bar', data.ram.percent);
