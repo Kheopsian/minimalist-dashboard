@@ -145,7 +145,7 @@
                             <span class="stat-value">64.5 GB</span>
                         </div>
                         <div class="cache-stat">
-                            <span>ARC Target Size</span>
+                            <span>ARC Max Size</span>
                             <span class="stat-value">65.0 GB</span>
                         </div>
                         <hr>
@@ -221,7 +221,7 @@
         if (arcCircle) { arcCircle.setAttribute('stroke-dasharray', `${data.arcCache.arcHitRateNum}, 100`); }
         updateTextContent('.cache-chart .chart-text', data.arcCache.arcHitRate);
         updateTextContent('.cache-details .cache-stat:nth-child(1) .stat-value', data.arcCache.arcSize);
-        updateTextContent('.cache-details .cache-stat:nth-child(2) .stat-value', data.arcCache.arcTargetSize);
+        updateTextContent('.cache-details .cache-stat:nth-child(2) .stat-value', data.arcCache.arcMaxSize);
         updateTextContent('.cache-details .cache-stat:nth-child(4) .stat-value', data.arcCache.l2arcSize);
         updateTextContent('.cache-details .cache-stat:nth-child(5) .stat-value', data.arcCache.l2arcHitRate);
 
@@ -274,6 +274,19 @@
                     cacheVdevTree.appendChild(vdevLi);
                 }
             }
+        }
+
+        // Mise à jour CPU (maintenant avec la température)
+        updateTextContent('#cpu-usage', data.cpu.usage);
+        updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
+        
+        // NOUVELLES LIGNES POUR LA TEMPÉRATURE
+        updateTextContent('#cpu-temp', data.cpu.temp);
+        const tempGauge = document.querySelector('.gauge-fill');
+        if (tempGauge) {
+            // La jauge tourne de 0 à 180deg pour une température de 0 à 100°C
+            const tempRotation = (data.cpu.tempDeg / 100) * 180;
+            tempGauge.style.transform = `rotate(${tempRotation}deg)`;
         }
     };
 

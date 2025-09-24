@@ -21,6 +21,11 @@ type CPUInfo struct {
 	TempDeg  float64 `json:"tempDeg"`
 }
 
+type CPUTimes struct {
+	Idle  float64
+	Total float64
+}
+
 type RAMInfo struct {
 	Used     string `json:"used"`
 	Total    string `json:"total"`
@@ -56,7 +61,7 @@ type ZFSConfig struct {
 
 type ARCCache struct {
 	ARCSize       string  `json:"arcSize"`
-	ARCTargetSize string  `json:"arcTargetSize"`
+	ARCMaxSize    string  `json:"arcMaxSize"`
 	ARCHitRate    string  `json:"arcHitRate"`
 	ARCHitRateNum float64 `json:"arcHitRateNum"`
 	L2ARCSize     string  `json:"l2arcSize"`
@@ -104,6 +109,41 @@ func runCommand(name string, args ...string) (string, error) {
 		return "", fmt.Errorf("error executing '%s %v': %w", name, args, err)
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func getCPUTimes() (CPUTimes, error) {
+	content, err := os.ReadFile("/proc/stat")
+	if err != nil {
+		return CPUTimes{}, err
+	}
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines {
+		if strings.HasPrefix(line, "cpu ") { // La première ligne "cpu" est l'agrégat
+			fields := strings.Fields(line)[1:]
+			var total float64
+			var idle float64
+			for i, field := range fields {
+				val, _ := strconv.ParseFloat(field, 64)
+				total += val
+				if i == 3 || i == 4 { // Les champs idle et iowait
+					idle += val
+				}
+			}
+			return CPUTimes{Idle: idle, Total: total}, nil
+		}
+	}
+	return CPUTimes{}, fmt.Errorf("ligne 'cpu' non trouvée dans /proc/stat")
+}
+
+func getCPUTemp() (string, float64) {
+	// La température CPU est souvent dans ce fichier, en millidegrés Celsius
+	content, err := os.ReadFile("/sys/class/thermal/thermal_zone0/temp")
+	if err != nil {
+		return "N/A", 0
+	}
+	temp, _ := strconv.ParseFloat(strings.TrimSpace(string(content)), 64)
+	temp /= 1000 // Convertir en degrés
+	return fmt.Sprintf("%.1f°C", temp), temp
 }
 
 func getStreamingInfo() StreamingInfo {
@@ -259,7 +299,7 @@ func getARCCacheInfo() ARCCache {
 
 	return ARCCache{
 		ARCSize:       fmt.Sprintf("%.1f GB", stats["size"]/1024/1024/1024),
-		ARCTargetSize: fmt.Sprintf("%.1f GB", stats["c"]/1024/1024/1024),
+		ARCMaxSize:    fmt.Sprintf("%.1f GB", stats["c_max"]/1024/1024/1024),
 		ARCHitRate:    fmt.Sprintf("%.1f%%", arcHitrate),
 		ARCHitRateNum: arcHitrate,
 		L2ARCSize:     fmt.Sprintf("%.1f GB", stats["l2_size"]/1024/1024/1024),
@@ -355,8 +395,6 @@ func collectAllMetrics() GlobalMetrics {
 		ZFSConfig: getZFSConfig(),
 		ARCCache:  getARCCacheInfo(), 
 		
-		// Mocked data for now
-		CPU: CPUInfo{Usage: "72%", Temp: "51.2°C", TempDeg: 51.2},
 		Disk: DiskInfo{Total: "8 TB", Used: "4.5 TB", Free: "3.5 TB", Percent: "56.2%", PercentNum: 56.2},
 		Net: NetTraffic{In: "5.7 MB/s", Out: "1.2 MB/s"},
 	}
@@ -369,30 +407,58 @@ var upgrader = websocket.Upgrader{
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if err != nil { log.Fatal(err) }
 	defer ws.Close()
 
-	fmt.Println("New client connected to WebSocket")
+	fmt.Println("Nouveau client connecté au WebSocket")
+
+	// IMPORTANT: On stocke les temps CPU précédents ici, en dehors de la boucle
+	var prevCPUTimes CPUTimes
+	prevCPUTimes, _ = getCPUTimes() // Première mesure
 
 	for {
-		metrics := collectAllMetrics()
+        time.Sleep(2 * time.Second) // On attend d'abord 2 secondes
 
-		jsonMessage, err := json.Marshal(metrics)
+		// Deuxième mesure
+		currentCPUTimes, err := getCPUTimes()
 		if err != nil {
-			log.Printf("JSON encoding error: %v", err)
-			time.Sleep(2 * time.Second)
+			log.Printf("Erreur getCPUTimes: %v", err)
 			continue
 		}
 
-		err = ws.WriteMessage(websocket.TextMessage, jsonMessage)
-		if err != nil {
-			log.Printf("Send error: %v", err)
-			break
+		// Calcul du delta
+		deltaIdle := currentCPUTimes.Idle - prevCPUTimes.Idle
+		deltaTotal := currentCPUTimes.Total - prevCPUTimes.Total
+
+		cpuUsagePercent := 0.0
+		if deltaTotal > 0 {
+			cpuUsagePercent = (1.0 - deltaIdle/deltaTotal) * 100
 		}
 
-		time.Sleep(2 * time.Second)
+		// On met à jour l'état pour la prochaine itération
+		prevCPUTimes = currentCPUTimes
+
+		// On récupère la température
+		tempStr, tempDeg := getCPUTemp()
+
+		// On assemble toutes les métriques
+		metrics := collectAllMetrics()
+		metrics.CPU = CPUInfo{
+			Usage:   fmt.Sprintf("%.0f%%", cpuUsagePercent),
+			Temp:    tempStr,
+			TempDeg: tempDeg,
+		}
+
+		jsonMessage, err := json.Marshal(metrics)
+		if err != nil {
+			log.Printf("Erreur d'encodage JSON: %v", err)
+			continue
+		}
+		err = ws.WriteMessage(websocket.TextMessage, jsonMessage)
+		if err != nil {
+			log.Printf("Erreur d'envoi: %v", err)
+			break
+		}
 	}
 }
 
