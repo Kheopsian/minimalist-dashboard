@@ -53,11 +53,19 @@
                 </div>
             </div>
 
-            <div class="metric-card">
-                <div class="metric-label">CPU Usage</div>
-                <div class="metric-value" id="cpu-usage">65%</div>
+            <div class="metric-card" id="cpu-card">
+                <div class="metric-label">CPU Usage & Temp</div>
+                <div class="cpu-main-stats">
+                    <div class="cpu-usage-value">
+                        <span class="metric-value" id="cpu-usage">--%</span>
+                    </div>
+                    <div class="cpu-temp-value">
+                        <i class="fas fa-thermometer-half"></i>
+                        <span id="cpu-temp">--.-°C</span>
+                    </div>
+                </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 65%;"></div>
+                    <div class="progress-bar" id="cpu-progress-bar"></div>
                 </div>
             </div>
 
@@ -192,9 +200,13 @@
             if (element) { element.style.width = value; }
         }
 
-        // CPU Usage
+        // --- CPU Usage & Temp ---
         updateTextContent('#cpu-usage', data.cpu.usage);
-        updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
+        updateTextContent('#cpu-temp', data.cpu.temp);
+        const cpuProgressBar = document.querySelector('#cpu-progress-bar');
+        if (cpuProgressBar) {
+            cpuProgressBar.style.width = data.cpu.usage;
+        }
         
         // RAM Usage
         updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);

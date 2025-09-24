@@ -113,6 +113,26 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     font-size: 1.1rem;
 }
 
+.cpu-main-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-grow: 1;
+    padding-bottom: var(--spacing-unit);
+}
+
+.cpu-temp-value {
+    font-family: var(--font-family-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--secondary-text-color);
+}
+
+.cpu-temp-value .fas {
+    margin-right: 8px;
+    color: var(--accent-color);
+}
+
 /* Responsive Design */
 @media (max-width: 900px) { 
     .metric-card.large-card { grid-column: span 1; } 
