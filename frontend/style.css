@@ -98,16 +98,6 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     max-width: 100%;
     word-break: break-all; /* Fallback pour les très longs mots sans espaces */
 }
-
-/* Ajustement spécifique pour mobile */
-@media (max-width: 600px) {
-    .zfs-tree ul li {
-        max-width: 200px; /* Limite plus stricte sur mobile */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
 .device-status { float: right; color: var(--secondary-text-color); font-size: 0.9rem; }
 
 
@@ -178,6 +168,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     gap: 1.5rem;
     margin-bottom: 0.5rem;
     display: flex;
+    align-items: center;
 }
 #docker-card .secondary-stats {
     display: flex;
@@ -192,8 +183,13 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 }
 
 /* --- RESPONSIVE --- */
-
-@media (min-width: 1300px) {
+@media (max-width: 1200px) {
+    .zfs-tree ul li {
+        max-width: 200px; /* Limite plus stricte sur mobile */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     #ram-card .metric-value {
         font-size: 1.5rem;
     }
@@ -206,6 +202,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 @media (max-width: 900px) { 
     .metric-card.large-card { grid-column: span 1; } 
 }
+
 @media (max-width: 600px) {
     .metrics-grid { grid-template-columns: 1fr; }
     .hero h1 { font-size: 3rem; }
