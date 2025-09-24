@@ -89,6 +89,25 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .zfs-tree { list-style-type: none; padding-left: 0; font-family: var(--font-family-mono); }
 .zfs-tree ul { list-style-type: none; padding-left: calc(var(--spacing-unit) * 2); margin-top: 0.5rem; border-left: 1px solid var(--border-color); }
 .zfs-tree li { padding: 0.4rem 0; position: relative; }
+
+/* Solution pour les noms de dispositifs longs */
+.zfs-tree ul li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    word-break: break-all; /* Fallback pour les très longs mots sans espaces */
+}
+
+/* Ajustement spécifique pour mobile */
+@media (max-width: 600px) {
+    .zfs-tree ul li {
+        max-width: 200px; /* Limite plus stricte sur mobile */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 .device-status { float: right; color: var(--secondary-text-color); font-size: 0.9rem; }
 
 
