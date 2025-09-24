@@ -71,10 +71,12 @@
             </div>
 
             <div class="metric-card">
-                <div class="metric-label">RAM Usage</div>
-                <div class="metric-value" id="ram-usage">35.8 GB / 128 GB (28%)</div>
+                <div class="metric-label">RAM USAGE</div>
+                <div class="card-body">
+                    <div class="metric-value" id="ram-usage">--.- GB / ---.- GB (--.-%)</div>
+                </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 28%;"></div>
+                    <div class="progress-bar" id="ram-progress-bar"></div>
                 </div>
             </div>
             
@@ -271,7 +273,7 @@
 
         // RAM Usage
         updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
-        updateProgressBar('#ram-usage + .progress-bar-container .progress-bar', data.ram.percent);
+        updateProgressBar('#ram-progress-bar', data.ram.percent);
 
         // Docker Activity
         updateTextContent('#docker-containers', data.docker.containers);
@@ -284,10 +286,10 @@
         updateTextContent('#streaming-card .library-stat:nth-child(3) .count', data.streaming.animes);
         
         const playingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(1)');
-        if (playingElement) { playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} Lectures en cours`; }
+        if (playingElement) { playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} Media currently playing`; }
         
         const transcodingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(2)');
-        if (transcodingElement) { transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} Transcodage actif`; }
+        if (transcodingElement) { transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} Active transcoding`; }
 
         // ARC & L2ARC Cache Performance
         const arcCircle = document.querySelector('.cache-chart .chart-circle');

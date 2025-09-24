@@ -22,7 +22,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .hero .dot { color: var(--accent-color); }
 .subtitle { font-size: 1.5rem; color: var(--secondary-text-color); margin-top: var(--spacing-unit); }
 
-.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: calc(var(--spacing-unit) * 2); }
+.metrics-grid { display: flex; flex-direction: column; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: calc(var(--spacing-unit) * 2); }
 .metric-card { background-color: #fff; border: 1px solid var(--border-color); padding: calc(var(--spacing-unit) * 2); border-radius: 5px; display: flex; flex-direction: column; }
 .metric-card.large-card { grid-column: span 2; }
 .metric-card.full-width { grid-column: 1 / -1; }
@@ -33,6 +33,17 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .progress-bar { height: 100%; background-color: var(--accent-color); border-radius: 4px; transition: width 0.5s ease-out; }
 
 .fas, .fab { margin-right: 10px; color: var(--secondary-text-color); width: 20px; text-align: center; }
+
+.card-body, .cpu-main-stats {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.progress-bar-container {
+    margin-top: auto;
+}
 
 /* ZFS Card */
 .zfs-header { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-family-mono); font-size: 1.2rem; margin-bottom: var(--spacing-unit); padding-bottom: var(--spacing-unit); border-bottom: 1px solid var(--border-color); }
