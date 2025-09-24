@@ -1,0 +1,50 @@
+# Nom du workflow qui apparaîtra dans l'onglet "Actions" de GitHub
+name: Docker Image CI
+
+# Déclencheurs : ce workflow s'exécute à chaque push sur la branche "main"
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # Nom du job
+  build-and-push:
+    # La machine sur laquelle le job va tourner (un runner GitHub standard)
+    runs-on: ubuntu-latest
+
+    # Les permissions nécessaires pour le GITHUB_TOKEN.
+    # C'est l'étape clé pour l'authentification.
+    permissions:
+      contents: read
+      packages: write # <-- Permission pour écrire sur le GitHub Container Registry
+
+    steps:
+      # 1. Récupère le code de ton dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Se connecte au GitHub Container Registry (ghcr.io)
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          # On utilise ton nom d'utilisateur GitHub et le GITHUB_TOKEN comme mot de passe.
+          # C'est la méthode recommandée et sécurisée.
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Met en place les métadonnées pour l'image (nom et tag)
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }} # ghcr.io/ton-user/ton-repo
+
+      # 4. Build l'image Docker et la push sur le registry
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Le contexte de build est la racine du projet
+          push: true # On veut bien pusher l'image
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

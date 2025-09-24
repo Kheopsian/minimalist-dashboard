@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Serveur Live</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">SERVEUR / STATUS</div>
+        <nav class="nav">
+            <a href="#" class="nav-item">CONTACT</a>
+            <a href="#" class="nav-item">ABOUT</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Server Status.<span class="dot">.</span></h1>
+            <p class="subtitle">Live System Metrics & Configuration.</p>
+        </section>
+
+        <section class="metrics-grid">
+            
+            <div class="metric-card full-width" id="streaming-card">
+                <div class="metric-label">Médiathèque & Activité Streaming</div>
+                <div class="library-counts">
+                    <div class="library-stat">
+                        <span class="count">1923</span>
+                        <span class="label">Films</span>
+                    </div>
+                    <div class="library-stat">
+                        <span class="count">812</span>
+                        <span class="label">Séries</span>
+                    </div>
+                    <div class="library-stat">
+                        <span class="count">350</span>
+                        <span class="label">Animes</span>
+                    </div>
+                </div>
+                <div class="streaming-activity">
+                    <div class="activity-stat">
+                        <i class="fas fa-play-circle"></i> 2 Lectures en cours
+                    </div>
+                    <div class="activity-stat">
+                        <i class="fas fa-cogs"></i> 1 Transcodage actif
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">CPU Usage</div>
+                <div class="metric-value" id="cpu-usage">65%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 65%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">RAM Usage</div>
+                <div class="metric-value" id="ram-usage">35.8 GB / 128 GB (28%)</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 28%;"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Docker Activity</div>
+                <div class="metric-value with-icon">
+                    <i class="fab fa-docker"></i>
+                    <span id="docker-containers">22</span>
+                </div>
+                <div class="secondary-stats">
+                    <div class="stat-item">
+                        <span>Images</span>
+                        <span id="docker-images">128</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Volumes</span>
+                        <span id="docker-volumes">35</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card full-width" id="zfs-card">
+                <div class="metric-label">ZFS Pool Configuration</div>
+                <div class="zfs-header">
+                    <span class="pool-name"><i class="fas fa-database"></i> rpool</span>
+                    <span class="pool-status online"><i class="fas fa-check-circle"></i> ONLINE</span>
+                </div>
+                <div class="zfs-layout">
+                    <div class="zfs-column">
+                        <span class="column-title">Data VDEVs</span>
+                        <ul class="zfs-tree">
+                            <li><i class="fas fa-layer-group"></i> raidz1-0 <span class="device-status">ONLINE</span>
+                                <ul>
+                                    <li><i class="fas fa-hdd"></i> disk-01</li>
+                                    <li><i class="fas fa-hdd"></i> disk-02</li>
+                                    <li><i class="fas fa-hdd"></i> disk-03</li>
+                                    <li><i class="fas fa-hdd"></i> disk-04</li>
+                                </ul>
+                            </li>
+                            <li><i class="fas fa-layer-group"></i> raidz1-1 <span class="device-status">ONLINE</span>
+                                <ul>
+                                    <li><i class="fas fa-hdd"></i> disk-05</li>
+                                    <li><i class="fas fa-hdd"></i> disk-06</li>
+                                    <li><i class="fas fa-hdd"></i> disk-07</li>
+                                    <li><i class="fas fa-hdd"></i> disk-08</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="zfs-column">
+                        <span class="column-title">Cache VDEV</span>
+                        <ul class="zfs-tree">
+                            <li><i class="fas fa-bolt"></i> L2ARC
+                                <ul>
+                                    <li><i class="fas fa-microchip"></i> nvme-Samsung-970-Evo</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card large-card">
+                <div class="metric-label">ARC & L2ARC Cache Performance</div>
+                <div class="cache-stats-container">
+                    <div class="cache-chart-container">
+                        <svg viewBox="0 0 36 36" class="cache-chart">
+                            <path class="chart-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                            <path class="chart-circle" stroke-dasharray="97, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                            <text x="18" y="20.35" class="chart-text">97%</text>
+                        </svg>
+                        <div class="chart-label">ARC Hit Rate</div>
+                    </div>
+                    <div class="cache-details">
+                        <div class="cache-stat">
+                            <span>ARC Size (RAM)</span>
+                            <span class="stat-value">64.5 GB</span>
+                        </div>
+                        <div class="cache-stat">
+                            <span>ARC Target Size</span>
+                            <span class="stat-value">65.0 GB</span>
+                        </div>
+                        <hr>
+                        <div class="cache-stat">
+                            <span>L2ARC Size (NVMe)</span>
+                            <span class="stat-value">480.1 GB</span>
+                        </div>
+                        <div class="cache-stat">
+                            <span>L2ARC Hit Rate</span>
+                            <span class="stat-value">68.2 %</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">System Information</div>
+                <ul class="sysinfo-list">
+                    <li><span>OS</span><span>Debian 12 Bookworm</span></li>
+                    <li><span>Kernel</span><span>6.1.0-18-amd64</span></li>
+                    <li><span>CPU</span><span>AMD Ryzen 7 5800X</span></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+    <script>
+        const socket = new WebSocket('ws://localhost:8080/ws');
+
+        socket.onopen = function(event) {
+            console.log('Connexion WebSocket établie !');
+        };
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Données reçues:', data);
+
+            // Fonction utilitaire pour mettre à jour un élément s'il existe
+            function updateTextContent(selector, value) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.textContent = value;
+                }
+            }
+
+            // Fonction utilitaire pour mettre à jour une barre de progression
+            function updateProgressBar(selector, value) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.style.width = value;
+                }
+            }
+
+            // --- MISE À JOUR DES ÉLÉMENTS HTML AVEC LES DONNÉES DU BACKEND ---
+
+            // CPU Usage
+            updateTextContent('#cpu-usage', data.cpu.usage);
+            updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
+            
+            // RAM Usage
+            updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
+            updateProgressBar('#ram-usage + .progress-bar-container .progress-bar', data.ram.percent);
+
+            // Docker Activity
+            updateTextContent('#docker-containers', data.docker.containers);
+            updateTextContent('#docker-images', data.docker.images);
+            updateTextContent('#docker-volumes', data.docker.volumes);
+
+            // Streaming Info
+            updateTextContent('#streaming-card .library-stat:nth-child(1) .count', data.streaming.films);
+            updateTextContent('#streaming-card .library-stat:nth-child(2) .count', data.streaming.series);
+            updateTextContent('#streaming-card .library-stat:nth-child(3) .count', data.streaming.animes);
+            
+            const playingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(1)');
+            if (playingElement) {
+                playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} Lectures en cours`;
+            }
+            
+            const transcodingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(2)');
+            if (transcodingElement) {
+                transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} Transcodage actif`;
+            }
+
+            // ARC & L2ARC Cache Performance
+            const arcCircle = document.querySelector('.cache-chart .chart-circle');
+            if (arcCircle) {
+                arcCircle.setAttribute('stroke-dasharray', `${data.arcCache.arcHitRateNum}, 100`);
+            }
+            updateTextContent('.cache-chart .chart-text', data.arcCache.arcHitRate);
+            updateTextContent('.cache-details .cache-stat:nth-child(1) .stat-value', data.arcCache.arcSize);
+            updateTextContent('.cache-details .cache-stat:nth-child(2) .stat-value', data.arcCache.arcTargetSize);
+            updateTextContent('.cache-details .cache-stat:nth-child(4) .stat-value', data.arcCache.l2arcSize);
+            updateTextContent('.cache-details .cache-stat:nth-child(5) .stat-value', data.arcCache.l2arcHitRate);
+        };
+
+        socket.onclose = function(event) {
+            console.log('Connexion WebSocket fermée.');
+        };
+
+        socket.onerror = function(error) {
+            console.error('Erreur WebSocket:', error);
+        };
+    </script>
+</body>
+</html>
