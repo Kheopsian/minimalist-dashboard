@@ -223,52 +223,48 @@ func getSystemInfo() SystemInfo {
 }
 
 func getARCCacheInfo() ARCCache {
-	out, err := runCommand("arc_summary")
+	content, err := os.ReadFile("/proc/spl/kstat/zfs/arcstats")
 	if err != nil {
-		log.Printf("Erreur getARCCacheInfo: %v", err)
+		log.Printf("Erreur getARCCacheInfo: impossible de lire /proc/spl/kstat/zfs/arcstats: %v", err)
 		return ARCCache{}
 	}
 
-	cache := ARCCache{}
-	lines := strings.Split(out, "\n")
+	stats := make(map[string]float64)
+	lines := strings.Split(string(content), "\n")
 
-	for _, line := range lines {
-		// On ne garde que les 2 premiers "mots" de chaque ligne pour simplifier
+	// La 3ème ligne contient les en-têtes, les données commencent après
+	if len(lines) < 3 {
+		return ARCCache{}
+	}
+
+	for _, line := range lines[2:] {
 		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			continue
-		}
-
-		// On cherche les lignes par leur préfixe
-		switch {
-		case strings.HasPrefix(line, "ARC Size:"):
-			// Ex: "ARC Size:              100.00% 64.00 GiB"
-			if len(fields) >= 5 {
-				cache.ARCSize = fields[4] + " " + fields[5]
-			}
-		case strings.HasPrefix(line, "ARC Target Size:"):
-			if len(fields) >= 6 {
-				cache.ARCTargetSize = fields[5] + " " + fields[6]
-			}
-		case strings.HasPrefix(line, "ARC Hit Ratio:"):
-			if len(fields) >= 4 {
-				// On garde le pourcentage, ex: "98.1%"
-				percentStr := strings.Trim(fields[3], "()")
-				cache.ARCHitRate = percentStr
-				// On garde la valeur numérique pour le graphique
-				cache.ARCHitRateNum, _ = strconv.ParseFloat(strings.TrimRight(percentStr, "%"), 64)
-			}
-		case strings.HasPrefix(line, "L2ARC Size (actual):"):
-			if len(fields) >= 6 {
-				cache.L2ARCSize = fields[5] + " " + fields[6]
-			}
-		case strings.HasPrefix(line, "L2ARC Hit Ratio:"):
-			if len(fields) >= 4 {
-				cache.L2ARCHitRate = strings.Trim(fields[3], "()")
-			}
+		if len(fields) == 3 {
+			// Le format est : nom_de_la_stat type valeur
+			key := fields[0]
+			value, _ := strconv.ParseFloat(fields[2], 64)
+			stats[key] = value
 		}
 	}
-	return cache
+
+	arcHitrate := 0.0
+	if (stats["hits"] + stats["misses"]) > 0 {
+		arcHitrate = (stats["hits"] / (stats["hits"] + stats["misses"])) * 100
+	}
+
+	l2arcHitrate := 0.0
+	if (stats["l2_hits"] + stats["l2_misses"]) > 0 {
+		l2arcHitrate = (stats["l2_hits"] / (stats["l2_hits"] + stats["l2_misses"])) * 100
+	}
+
+	return ARCCache{
+		ARCSize:       fmt.Sprintf("%.1f GB", stats["size"]/1024/1024/1024),
+		ARCTargetSize: fmt.Sprintf("%.1f GB", stats["c"]/1024/1024/1024),
+		ARCHitRate:    fmt.Sprintf("%.1f%%", arcHitrate),
+		ARCHitRateNum: arcHitrate,
+		L2ARCSize:     fmt.Sprintf("%.1f GB", stats["l2_size"]/1024/1024/1024),
+		L2ARCHitRate:  fmt.Sprintf("%.1f%%", l2arcHitrate),
+	}
 }
 
 func getZFSConfig() ZFSConfig {
