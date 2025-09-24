@@ -457,7 +457,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	prevCPUTimes, _ = getCPUTimes()
 
 	var prevNetCounters NetCounters
-	prevNetCounters, _ = getNetCounters()
+	prevNetCounters, _ = getNetCounters(netInterface)
 
 	prevTime := time.Now()
 
