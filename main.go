@@ -268,57 +268,50 @@ func getARCCacheInfo() ARCCache {
 }
 
 func getZFSConfig() ZFSConfig {
-	out, err := runCommand("zpool", "status")
+	// On ne lance plus de commande, on lit le fichier que l'hôte a préparé pour nous
+	content, err := os.ReadFile("/app/zpool_status.txt")
 	if err != nil {
-		log.Printf("Erreur getZFSConfig: %v", err)
+		log.Printf("Erreur getZFSConfig: impossible de lire /app/zpool_status.txt: %v", err)
 		return ZFSConfig{}
 	}
 
+	out := string(content)
+	
+	// Le reste du code de parsing est exactement le même qu'avant
 	config := ZFSConfig{}
 	var currentVdev *ZPoolVdev
 	inConfigSection := false
 
 	lines := strings.Split(out, "\n")
 	for _, line := range lines {
-		// On cherche la ligne "config:" pour commencer le parsing
 		if strings.HasPrefix(line, " config:") {
 			inConfigSection = true
 			continue
 		}
-		if !inConfigSection || line == "" {
-			continue // On ignore tout ce qui n'est pas dans la section config
-		}
+		if !inConfigSection || line == "" { continue }
 		
 		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			continue
-		}
+		if len(fields) < 2 { continue }
 
-		// Si la ligne n'est pas indentée, c'est le nom du pool
 		if !strings.HasPrefix(line, " ") {
 			config.PoolName = fields[0]
 			config.PoolStatus = fields[1]
 			continue
 		}
 
-		// Gestion des vdevs (raidz, mirror, cache, etc.)
 		deviceName := fields[0]
 		deviceStatus := fields[1]
 
 		if strings.HasPrefix(line, "  ") && !strings.HasPrefix(line, "    ") {
-			// C'est un vdev principal (indentation de 2 espaces)
 			newVdev := ZPoolVdev{Name: deviceName, Status: deviceStatus}
 			currentVdev = &newVdev
 
-			// On détermine si c'est un vdev de données ou de cache
 			if strings.Contains(deviceName, "raidz") || strings.Contains(deviceName, "mirror") {
 				config.DataVdevs = append(config.DataVdevs, newVdev)
 			} else if strings.Contains(deviceName, "cache") || strings.Contains(deviceName, "L2ARC") {
 				config.CacheVdev = &newVdev
 			}
 		} else if strings.HasPrefix(line, "    ") && currentVdev != nil {
-			// C'est un disque à l'intérieur d'un vdev (indentation > 2 espaces)
-			// On cherche l'index du vdev courant dans la bonne liste pour y ajouter le disque
 			if config.CacheVdev != nil && config.CacheVdev.Name == currentVdev.Name {
 				config.CacheVdev.Devices = append(config.CacheVdev.Devices, deviceName)
 			} else {
