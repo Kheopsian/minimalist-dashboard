@@ -38,7 +38,8 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     padding: calc(var(--spacing-unit) * 2); 
     border-radius: 5px; 
     display: flex; 
-    flex-direction: column; 
+    flex-direction: column;
+    min-height: 200px;
 }
 .metric-label { font-size: 0.9rem; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--spacing-unit); }
 .metric-value { font-family: var(--font-family-mono); font-size: 2.2rem; font-weight: 700; }
@@ -130,12 +131,12 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .network-stat span:last-child { font-weight: 700; }
 .network-chart-container { position: relative; height: 80px; }
 #ram-card .metric-value {
-    font-size: clamp(1.1rem, 3.2vw, 2.0rem);
+    font-size: 2.0rem;
     white-space: nowrap;
     text-align: center;
-    line-height: 1.2;    
-    overflow: visible;
-    text-overflow: clip;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 #cpu-card .cpu-main-stats {
     align-items: center;
@@ -147,6 +148,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     justify-content: center;
     gap: 1.5rem;
     margin-bottom: 0.5rem;
+    display: flex;
 }
 #docker-card .secondary-stats {
     display: flex;
@@ -160,8 +162,18 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     color: #0db7ed; 
 }
 
-
 /* --- RESPONSIVE --- */
+
+@media (min-width: 1300px) {
+    #ram-card .metric-value {
+        font-size: 1.5rem;
+    }
+}
+@media (min-width: 1000px) {
+    #ram-card .metric-value {
+        font-size: 1.7rem;
+    }
+}
 @media (max-width: 900px) { 
     .metric-card.large-card { grid-column: span 1; } 
 }
