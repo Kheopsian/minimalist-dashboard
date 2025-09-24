@@ -117,10 +117,10 @@ func runCommand(name string, args ...string) (string, error) {
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
-	content, err := os.ReadFile("/app/net_dev.txt")
-	if err != nil {
-		return NetCounters{}, err
-	}
+	content, err := os.ReadFile("/proc/net/dev")
+    if err != nil {
+        return NetCounters{}, err
+    }
 	
 	lines := strings.Split(string(content), "\n")
 	for _, line := range lines[2:] {
@@ -341,13 +341,12 @@ func getARCCacheInfo() ARCCache {
 }
 
 func getZFSConfig() ZFSConfig {
-	content, err := os.ReadFile("/app/zpool_status.txt")
-	if err != nil {
-		log.Printf("Erreur getZFSConfig: impossible de lire /app/zpool_status.txt: %v", err)
-		return ZFSConfig{}
-	}
+	out, err := runCommand("zpool", "status")
+    if err != nil {
+        log.Printf("Erreur getZFSConfig: %v", err)
+        return ZFSConfig{}
+    }
 
-	out := string(content)
 	config := ZFSConfig{}
 	var dataVdevs []ZPoolVdev
 	var cacheVdev *ZPoolVdev
@@ -505,7 +504,10 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := 8080
+	port := os.Getenv("WEBUI_PORT")
+	if port == "" {
+		port = "8080"
+	}
 
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fileServer)
