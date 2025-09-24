@@ -134,33 +134,37 @@ func getStreamingInfo() StreamingInfo {
 }
 
 func getRAMInfo() RAMInfo {
-	out, err := runCommand("free", "-m")
+	out, err := runCommand("cat", "/proc/meminfo")
 	if err != nil {
-		log.Printf("Error getRAMInfo: %v", err)
+		log.Printf("Erreur getRAMInfo: %v", err)
 		return RAMInfo{}
 	}
 
+	var memTotal, memAvailable float64
 	lines := strings.Split(out, "\n")
-	if len(lines) < 2 {
-		return RAMInfo{}
+
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		switch fields[0] {
+		case "MemTotal:":
+			memTotal, _ = strconv.ParseFloat(fields[1], 64)
+		case "MemAvailable:":
+			memAvailable, _ = strconv.ParseFloat(fields[1], 64)
+		}
 	}
 	
-	fields := strings.Fields(lines[1])
-	if len(fields) < 4 {
-		return RAMInfo{}
+	used := memTotal - memAvailable
+	percent := 0.0
+	if memTotal > 0 {
+		percent = (used / memTotal) * 100
 	}
 
-	total, _ := strconv.ParseFloat(fields[1], 64)
-	used, _ := strconv.ParseFloat(fields[2], 64)
-	
-	percent := 0.0
-	if total > 0 {
-		percent = (used / total) * 100
-	}
-	
 	return RAMInfo{
-		Used:    fmt.Sprintf("%.1f GB", used/1024),
-		Total:   fmt.Sprintf("%.1f GB", total/1024),
+		Used:    fmt.Sprintf("%.1f GB", used/1024/1024),
+		Total:   fmt.Sprintf("%.1f GB", memTotal/1024/1024),
 		Percent: fmt.Sprintf("%.1f%%", percent),
 		PercentNum: percent,
 	}
@@ -168,30 +172,47 @@ func getRAMInfo() RAMInfo {
 
 
 func getSystemInfo() SystemInfo {
+	// Uptime : /proc/uptime donne l'uptime en secondes (le premier nombre)
+	uptimeOut, _ := runCommand("cat", "/proc/uptime")
+	var uptimeSeconds float64
+	if uptimeOut != "" {
+		uptimeSeconds, _ = strconv.ParseFloat(strings.Fields(uptimeOut)[0], 64)
+	}
+
+	// Formatage de l'uptime en jours, heures, minutes
+	days := int(uptimeSeconds) / (60 * 60 * 24)
+	hours := (int(uptimeSeconds) / (60 * 60)) % 24
+	minutes := (int(uptimeSeconds) / 60) % 60
+	uptimeFormatted := fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
+
+	// OS : On tente toujours /etc/os-release, c'est le standard moderne
 	osOut, _ := runCommand("cat", "/etc/os-release")
-	kernelOut, _ := runCommand("uname", "-r")
-	cpuOut, _ := runCommand("lscpu")
-	uptimeOut, _ := runCommand("uptime", "-p")
-
-	var osName, cpuModel string
-
+	var osName string
 	for _, line := range strings.Split(osOut, "\n") {
 		if strings.HasPrefix(line, "PRETTY_NAME=") {
 			osName = strings.Trim(strings.Split(line, "=")[1], `"`)
 		}
 	}
+    if osName == "" {
+        osName = "Unraid OS"
+    }
 
+	kernelOut, _ := runCommand("uname", "-r")
+
+	cpuOut, _ := runCommand("cat", "/proc/cpuinfo")
+	var cpuModel string
 	for _, line := range strings.Split(cpuOut, "\n") {
-		if strings.HasPrefix(line, "Model name:") {
+		if strings.HasPrefix(line, "model name") {
 			cpuModel = strings.TrimSpace(strings.Split(line, ":")[1])
+			break
 		}
 	}
-	
+
 	return SystemInfo{
 		OS:     osName,
 		Kernel: kernelOut,
 		CPU:    cpuModel,
-		Uptime: strings.TrimPrefix(uptimeOut, "up "),
+		Uptime: uptimeFormatted,
 	}
 }
 
