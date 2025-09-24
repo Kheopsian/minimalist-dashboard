@@ -4,18 +4,20 @@
     --background-color: #f7f7f7;
     --border-color: #e0e0e0;
     --accent-color: #007bff;
+    --card-background-color: #fff;
     --font-family-main: 'Inter', sans-serif;
     --font-family-mono: 'Roboto Mono', monospace;
     --spacing-unit: 1rem;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-family-main); color: var(--primary-text-color); background-color: var(--background-color); line-height: 1.6; }
-.header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-unit) calc(var(--spacing-unit) * 4); border-bottom: 1px solid var(--border-color); background-color: #fff; }
+body { font-family: var(--font-family-main); color: var(--primary-text-color); background-color: var(--background-color); line-height: 1.6; overflow-x: hidden; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-unit) calc(var(--spacing-unit) * 4); border-bottom: 1px solid var(--border-color); background-color: var(--card-background-color); }
 .logo { font-weight: 700; letter-spacing: 0.05em; }
 .nav { display: flex; gap: calc(var(--spacing-unit) * 2); }
 .nav-item { text-decoration: none; color: var(--primary-text-color); font-weight: 400; text-transform: uppercase; transition: color 0.3s ease; }
 .nav-item:hover { color: var(--accent-color); }
+#theme-switcher { cursor: pointer; }
 .container { max-width: 1400px; margin: 0 auto; padding: calc(var(--spacing-unit) * 4); }
 .hero { margin-bottom: calc(var(--spacing-unit) * 4); padding-bottom: calc(var(--spacing-unit) * 2); border-bottom: 1px solid var(--border-color); }
 .hero h1 { font-size: 5rem; font-weight: 700; line-height: 1; margin-bottom: var(--spacing-unit); }
@@ -33,9 +35,9 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 
 /* --- STYLE GÉNÉRAL DES CARTES --- */
 .metric-card { 
-    background-color: #fff; 
-    border: 1px solid var(--border-color); 
-    padding: calc(var(--spacing-unit) * 2); 
+    background-color: var(--card-background-color);
+    border: 1px solid var(--border-color);
+    padding: calc(var(--spacing-unit) * 2);
     border-radius: 5px; 
     display: flex; 
     flex-direction: column;
@@ -191,4 +193,22 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     .zfs-layout { flex-direction: column; }
     .cache-stats-container { flex-direction: column; }
     .library-counts { flex-direction: column; gap: calc(var(--spacing-unit)*2); }
+}
+/* --- DARK MODE --- */
+body.dark-mode {
+    --primary-text-color: #e0e0e0;
+    --secondary-text-color: #999;
+    --background-color: #121212;
+    --border-color: #333;
+    --accent-color: #0099ff;
+    --card-background-color: #1e1e1e;
+}
+
+body.dark-mode .pool-status.online {
+    color: #66bb6a;
+    background-color: rgba(102, 187, 106, 0.1);
+}
+
+body.dark-mode #docker-card .fab.fa-docker {
+    color: #2496ed;
 }

@@ -17,6 +17,9 @@
         <nav class="nav">
             <a href="#" class="nav-item">CONTACT</a>
             <a href="#" class="nav-item">ABOUT</a>
+            <div id="theme-switcher" class="nav-item">
+                <i class="fas fa-moon"></i>
+            </div>
         </nav>
     </header>
 
@@ -389,6 +392,36 @@
     socket.onerror = function(error) {
         console.error('Erreur WebSocket:', error);
     };
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const body = document.body;
+            const themeIcon = themeSwitcher.querySelector('i');
+
+            // Appliquer le thème sauvegardé au chargement
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+
+            themeSwitcher.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                
+                // Mettre à jour l'icône et sauvegarder la préférence
+                if (body.classList.contains('dark-mode')) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        });
     </script>
 </body>
 </html>
