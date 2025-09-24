@@ -512,9 +512,9 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fileServer)
 	http.HandleFunc("/ws", handleConnections)
-
-	fmt.Printf("Server started. Go to http://localhost:%d\n", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	listenAddr := ":" + port
+	fmt.Printf("Serveur démarré. Rendez-vous sur http://localhost:%s\n", port)
+	err := http.ListenAndServe(listenAddr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
