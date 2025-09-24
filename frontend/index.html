@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="header">
@@ -95,13 +96,20 @@
                 </div>
             </div>
 
-            <div class="metric-card">
+            <div class="metric-card" id="network-card">
                 <div class="metric-label">Network Traffic</div>
-                <div class="metric-value-small">
-                    <span class="direction">In:</span> <span id="net-in">-- Mb/s</span>
+                <div class="network-current-stats">
+                    <div class="network-stat">
+                        <span><i class="fas fa-arrow-down"></i> In</span>
+                        <span id="net-in">--.- Mb/s</span>
+                    </div>
+                    <div class="network-stat">
+                        <span><i class="fas fa-arrow-up"></i> Out</span>
+                        <span id="net-out">--.- Mb/s</span>
+                    </div>
                 </div>
-                <div class="metric-value-small">
-                    <span class="direction">Out:</span> <span id="net-out">-- Mb/s</span>
+                <div class="network-chart-container">
+                    <canvas id="networkChart"></canvas>
                 </div>
             </div>
 
@@ -190,6 +198,49 @@
         </section>
     </main>
     <script>
+        const ctx = document.getElementById('networkChart').getContext('2d');
+    const networkChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array(30).fill(''), // 30 points de données (1 minute à 2s d'intervalle)
+            datasets: [{
+                label: 'In (Mb/s)',
+                data: Array(30).fill(0),
+                borderColor: 'rgba(0, 123, 255, 0.8)',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+            }, {
+                label: 'Out (Mb/s)',
+                data: Array(30).fill(0),
+                borderColor: 'rgba(40, 167, 69, 0.8)',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { font: { size: 10 } }
+                },
+                x: {
+                    ticks: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            },
+            animation: { duration: 250 }
+        }
+    });
+
     const socket = new WebSocket(`ws://${window.location.host}/ws`);
 
     socket.onopen = function(event) {
@@ -313,6 +364,18 @@
 
         updateTextContent('#net-in', data.net.in);
         updateTextContent('#net-out', data.net.out);
+
+        // On met à jour les données du graphique
+        const chartData = networkChart.data;
+        
+        // Ajoute la nouvelle valeur et retire la plus ancienne
+        chartData.datasets[0].data.push(parseFloat(data.net.in) || 0);
+        chartData.datasets[0].data.shift();
+        
+        chartData.datasets[1].data.push(parseFloat(data.net.out) || 0);
+        chartData.datasets[1].data.shift();
+        
+        networkChart.update();
     };
 
     socket.onclose = function(event) {
