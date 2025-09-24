@@ -34,7 +34,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 
 .fas, .fab { margin-right: 10px; color: var(--secondary-text-color); width: 20px; text-align: center; }
 
-/* Carte ZFS */
+/* ZFS Card */
 .zfs-header { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-family-mono); font-size: 1.2rem; margin-bottom: var(--spacing-unit); padding-bottom: var(--spacing-unit); border-bottom: 1px solid var(--border-color); }
 .pool-name { font-weight: 700; }
 .pool-status { font-size: 0.9rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
@@ -47,13 +47,13 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .zfs-tree li { padding: 0.4rem 0; position: relative; }
 .device-status { float: right; color: var(--secondary-text-color); font-size: 0.9rem; }
 
-/* Carte System Info */
+/* System Info Card */
 .sysinfo-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-unit); height: 100%; justify-content: center; }
 .sysinfo-list li { display: flex; justify-content: space-between; font-family: var(--font-family-mono); font-size: 1rem; }
 .sysinfo-list li span:first-child { color: var(--secondary-text-color); }
 .sysinfo-list li span:last-child { font-weight: 700; text-align: right; }
 
-/* Carte Cache Performance */
+/* Cache Performance Card */
 .cache-stats-container { display: flex; align-items: center; gap: calc(var(--spacing-unit) * 3); flex-grow: 1; }
 .cache-chart-container { text-align: center; }
 .cache-chart { width: 120px; height: 120px; }
@@ -67,7 +67,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .cache-stat .stat-value { font-weight: 700; }
 .cache-details hr { border: none; border-top: 1px solid var(--border-color); margin: 0; }
 
-/* Carte Docker */
+/* Docker Card */
 .metric-value.with-icon { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
 .metric-value.with-icon .fab { font-size: 2rem; color: #0db7ed; margin-right: 1.5rem; }
 .metric-value.with-icon span { font-size: 3rem; }
@@ -77,7 +77,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .stat-item span:first-child { font-size: 0.8rem; color: var(--secondary-text-color); }
 .stat-item span:last-child { font-size: 1.2rem; font-weight: 700; }
 
-/* Carte Streaming */
+/* Streaming Card */
 #streaming-card {
     justify-content: center;
 }
@@ -113,7 +113,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     font-size: 1.1rem;
 }
 
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 900px) { 
     .metric-card.large-card { grid-column: span 1; } 
 }

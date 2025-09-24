@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Serveur Live</title>
+    <title>My Live Server</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 </head>
 <body>
     <header class="header">
-        <div class="logo">SERVEUR / STATUS</div>
+        <div class="logo">SERVER / STATUS</div>
         <nav class="nav">
             <a href="#" class="nav-item">CONTACT</a>
             <a href="#" class="nav-item">ABOUT</a>
@@ -28,15 +28,15 @@
         <section class="metrics-grid">
             
             <div class="metric-card full-width" id="streaming-card">
-                <div class="metric-label">Médiathèque & Activité Streaming</div>
+                <div class="metric-label">Mediatheque & Streaming Activity</div>
                 <div class="library-counts">
                     <div class="library-stat">
                         <span class="count">1923</span>
-                        <span class="label">Films</span>
+                        <span class="label">Movies</span>
                     </div>
                     <div class="library-stat">
                         <span class="count">812</span>
-                        <span class="label">Séries</span>
+                        <span class="label">Shows</span>
                     </div>
                     <div class="library-stat">
                         <span class="count">350</span>
@@ -45,10 +45,10 @@
                 </div>
                 <div class="streaming-activity">
                     <div class="activity-stat">
-                        <i class="fas fa-play-circle"></i> 2 Lectures en cours
+                        <i class="fas fa-play-circle"></i> 2 currently playing
                     </div>
                     <div class="activity-stat">
-                        <i class="fas fa-cogs"></i> 1 Transcodage actif
+                        <i class="fas fa-cogs"></i> 1 active transcoding
                     </div>
                 </div>
             </div>
@@ -175,14 +175,13 @@
         const socket = new WebSocket('ws://localhost:8080/ws');
 
         socket.onopen = function(event) {
-            console.log('Connexion WebSocket établie !');
+            console.log('WebSocket connection established!');
         };
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
-            console.log('Données reçues:', data);
+            console.log('Data received:', data);
 
-            // Fonction utilitaire pour mettre à jour un élément s'il existe
             function updateTextContent(selector, value) {
                 const element = document.querySelector(selector);
                 if (element) {
@@ -190,15 +189,12 @@
                 }
             }
 
-            // Fonction utilitaire pour mettre à jour une barre de progression
             function updateProgressBar(selector, value) {
                 const element = document.querySelector(selector);
                 if (element) {
                     element.style.width = value;
                 }
             }
-
-            // --- MISE À JOUR DES ÉLÉMENTS HTML AVEC LES DONNÉES DU BACKEND ---
 
             // CPU Usage
             updateTextContent('#cpu-usage', data.cpu.usage);
@@ -220,12 +216,12 @@
             
             const playingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(1)');
             if (playingElement) {
-                playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} Lectures en cours`;
+                playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} currently playing`;
             }
             
             const transcodingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(2)');
             if (transcodingElement) {
-                transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} Transcodage actif`;
+                transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} active transcoding`;
             }
 
             // ARC & L2ARC Cache Performance
@@ -241,11 +237,11 @@
         };
 
         socket.onclose = function(event) {
-            console.log('Connexion WebSocket fermée.');
+            console.log('WebSocket connection closed.');
         };
 
         socket.onerror = function(error) {
-            console.error('Erreur WebSocket:', error);
+            console.error('WebSocket error:', error);
         };
     </script>
 </body>
