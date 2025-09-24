@@ -130,14 +130,13 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .network-stat span:last-child { font-weight: 700; }
 .network-chart-container { position: relative; height: 80px; }
 #ram-card .metric-value {
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-size: clamp(1.5rem, 3.5vw, 2.0rem);
+    white-space: nowrap;
     text-align: center;
     line-height: 1.2;
 }
 #cpu-card .cpu-main-stats {
-    justify-content: center;
     align-items: center;
-    gap: 2rem;
 }
 #docker-card .card-body {
     text-align: center;
@@ -148,8 +147,12 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     margin-bottom: 0.5rem;
 }
 #docker-card .secondary-stats {
+    display: flex;
+    flex-direction: row;
     justify-content: center;
-    gap: 2rem;
+    align-items: center;
+    gap: 2.5rem;
+    margin-top: 1rem;
 }
 #docker-card .fab.fa-docker {
     color: #0db7ed; 
