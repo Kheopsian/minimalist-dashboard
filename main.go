@@ -222,12 +222,30 @@ func getSystemInfo() SystemInfo {
 	}
 }
 
+func getDockerInfo() DockerInfo {
+	containersOut, _ := runCommand("docker", "ps", "--format", "{{.ID}}")
+	imagesOut, _ := runCommand("docker", "images", "--format", "{{.ID}}")
+	volumesOut, _ := runCommand("docker", "volume", "ls", "--format", "{{.Name}}")
+
+	countLines := func(output string) int {
+		if output == "" { return 0 }
+		return len(strings.Split(output, "\n"))
+	}
+	
+	return DockerInfo{
+		Containers: countLines(containersOut),
+		Images:     countLines(imagesOut),
+		Volumes:    countLines(volumesOut),
+	}
+}
+
 // collectAllMetrics gathers all system metrics.
 func collectAllMetrics() GlobalMetrics {
 	metrics := GlobalMetrics{
 		RAM: getRAMInfo(),
 		System: getSystemInfo(),
 		Streaming: getStreamingInfo(),
+		Docker: getDockerInfo(),
 		
 		// Mocked data for now
 		CPU: CPUInfo{Usage: "72%", Temp: "51.2°C", TempDeg: 51.2},
@@ -235,7 +253,6 @@ func collectAllMetrics() GlobalMetrics {
 		Net: NetTraffic{In: "5.7 MB/s", Out: "1.2 MB/s"},
 		ZFSConfig: ZFSConfig{PoolName: "rpool", PoolStatus: "ONLINE", DataVdevs: []ZPoolVdev{{Name: "raidz1-0", Status: "ONLINE", Devices: []string{"disk-01", "disk-02", "disk-03", "disk-04"}},{Name: "raidz1-1", Status: "ONLINE", Devices: []string{"disk-05", "disk-06", "disk-07", "disk-08"}}}, CacheVdev: &ZPoolVdev{Name: "L2ARC", Status: "ONLINE", Devices: []string{"nvme-Samsung-970-Evo"}}},
 		ARCCache: ARCCache{ARCSize: "66.1 GB", ARCTargetSize: "65.0 GB", ARCHitRate: "98.1%", ARCHitRateNum: 98.1, L2ARCSize: "485.0 GB", L2ARCHitRate: "70.5 %"},
-		Docker: DockerInfo{Containers: 25, Images: 132, Volumes: 38},
 	}
 	return metrics
 }

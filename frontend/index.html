@@ -172,77 +172,73 @@
         </section>
     </main>
     <script>
-        const socket = new WebSocket(`ws://${window.location.host}/ws`);
+    const socket = new WebSocket(`ws://${window.location.host}/ws`);
 
-        socket.onopen = function(event) {
-            console.log('WebSocket connection established!');
-        };
+    socket.onopen = function(event) {
+        console.log('Connexion WebSocket établie !');
+    };
 
-        socket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            console.log('Data received:', data);
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('Données reçues:', data);
 
-            function updateTextContent(selector, value) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    element.textContent = value;
-                }
-            }
+        function updateTextContent(selector, value) {
+            const element = document.querySelector(selector);
+            if (element) { element.textContent = value; }
+        }
 
-            function updateProgressBar(selector, value) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    element.style.width = value;
-                }
-            }
+        function updateProgressBar(selector, value) {
+            const element = document.querySelector(selector);
+            if (element) { element.style.width = value; }
+        }
 
-            // CPU Usage
-            updateTextContent('#cpu-usage', data.cpu.usage);
-            updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
-            
-            // RAM Usage
-            updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
-            updateProgressBar('#ram-usage + .progress-bar-container .progress-bar', data.ram.percent);
+        // CPU Usage
+        updateTextContent('#cpu-usage', data.cpu.usage);
+        updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
+        
+        // RAM Usage
+        updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
+        updateProgressBar('#ram-usage + .progress-bar-container .progress-bar', data.ram.percent);
 
-            // Docker Activity
-            updateTextContent('#docker-containers', data.docker.containers);
-            updateTextContent('#docker-images', data.docker.images);
-            updateTextContent('#docker-volumes', data.docker.volumes);
+        // Docker Activity
+        updateTextContent('#docker-containers', data.docker.containers);
+        updateTextContent('#docker-images', data.docker.images);
+        updateTextContent('#docker-volumes', data.docker.volumes);
 
-            // Streaming Info
-            updateTextContent('#streaming-card .library-stat:nth-child(1) .count', data.streaming.films);
-            updateTextContent('#streaming-card .library-stat:nth-child(2) .count', data.streaming.series);
-            updateTextContent('#streaming-card .library-stat:nth-child(3) .count', data.streaming.animes);
-            
-            const playingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(1)');
-            if (playingElement) {
-                playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} currently playing`;
-            }
-            
-            const transcodingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(2)');
-            if (transcodingElement) {
-                transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} active transcoding`;
-            }
+        // Streaming Info
+        updateTextContent('#streaming-card .library-stat:nth-child(1) .count', data.streaming.films);
+        updateTextContent('#streaming-card .library-stat:nth-child(2) .count', data.streaming.series);
+        updateTextContent('#streaming-card .library-stat:nth-child(3) .count', data.streaming.animes);
+        
+        const playingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(1)');
+        if (playingElement) { playingElement.innerHTML = `<i class="fas fa-play-circle"></i> ${data.streaming.playing} Lectures en cours`; }
+        
+        const transcodingElement = document.querySelector('.streaming-activity .activity-stat:nth-child(2)');
+        if (transcodingElement) { transcodingElement.innerHTML = `<i class="fas fa-cogs"></i> ${data.streaming.transcoding} Transcodage actif`; }
 
-            // ARC & L2ARC Cache Performance
-            const arcCircle = document.querySelector('.cache-chart .chart-circle');
-            if (arcCircle) {
-                arcCircle.setAttribute('stroke-dasharray', `${data.arcCache.arcHitRateNum}, 100`);
-            }
-            updateTextContent('.cache-chart .chart-text', data.arcCache.arcHitRate);
-            updateTextContent('.cache-details .cache-stat:nth-child(1) .stat-value', data.arcCache.arcSize);
-            updateTextContent('.cache-details .cache-stat:nth-child(2) .stat-value', data.arcCache.arcTargetSize);
-            updateTextContent('.cache-details .cache-stat:nth-child(4) .stat-value', data.arcCache.l2arcSize);
-            updateTextContent('.cache-details .cache-stat:nth-child(5) .stat-value', data.arcCache.l2arcHitRate);
-        };
+        // ARC & L2ARC Cache Performance
+        const arcCircle = document.querySelector('.cache-chart .chart-circle');
+        if (arcCircle) { arcCircle.setAttribute('stroke-dasharray', `${data.arcCache.arcHitRateNum}, 100`); }
+        updateTextContent('.cache-chart .chart-text', data.arcCache.arcHitRate);
+        updateTextContent('.cache-details .cache-stat:nth-child(1) .stat-value', data.arcCache.arcSize);
+        updateTextContent('.cache-details .cache-stat:nth-child(2) .stat-value', data.arcCache.arcTargetSize);
+        updateTextContent('.cache-details .cache-stat:nth-child(4) .stat-value', data.arcCache.l2arcSize);
+        updateTextContent('.cache-details .cache-stat:nth-child(5) .stat-value', data.arcCache.l2arcHitRate);
 
-        socket.onclose = function(event) {
-            console.log('WebSocket connection closed.');
-        };
+        // -- LIGNES AJOUTÉES ICI --
+        // System Information
+        updateTextContent('.sysinfo-list li:nth-child(1) span:last-child', data.system.os);
+        updateTextContent('.sysinfo-list li:nth-child(2) span:last-child', data.system.kernel);
+        updateTextContent('.sysinfo-list li:nth-child(3) span:last-child', data.system.cpu);
+    };
 
-        socket.onerror = function(error) {
-            console.error('WebSocket error:', error);
-        };
+    socket.onclose = function(event) {
+        console.log('Connexion WebSocket fermée.');
+    };
+
+    socket.onerror = function(error) {
+        console.error('Erreur WebSocket:', error);
+    };
     </script>
 </body>
 </html>
