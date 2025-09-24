@@ -14,6 +14,16 @@ import (
 	"os"
 )
 
+type PlexSessionResponse struct {
+	MediaContainer struct {
+		Size     int                `json:"size"`
+		Metadata []PlexSessionMedia `json:"Metadata"`
+	} `json:"MediaContainer"`
+}
+
+type PlexSessionMedia struct {
+	TranscodeSession map[string]interface{} `json:"TranscodeSession"`
+}
 
 type CPUInfo struct {
 	Usage    string `json:"usage"`
@@ -180,29 +190,65 @@ func getCPUTemp() (string, float64) {
 }
 
 func getStreamingInfo() StreamingInfo {
+	// -- Partie 1 : Compter les fichiers (inchangé) --
 	countItemsInDir := func(path string) int {
-		if path == "" {
-			return 0
-		}
+		if path == "" { return 0 }
 		entries, err := os.ReadDir(path)
-		if err != nil {
-			log.Printf("Error reading directory %s: %v", path, err)
-			return 0
-		}
+		if err != nil { return 0 }
 		return len(entries)
 	}
+	films := countItemsInDir(os.Getenv("PATH_FILMS"))
+	series := countItemsInDir(os.Getenv("PATH_SERIES"))
+	animes := countItemsInDir(os.Getenv("PATH_ANIMES"))
 
-	filmsPath := os.Getenv("PATH_FILMS")
-	seriesPath := os.Getenv("PATH_SERIES")
-	animesPath := os.Getenv("PATH_ANIMES")
+	// -- Partie 2 : Interroger l'API Plex --
+	playing := 0
+	transcoding := 0
+	plexURL := os.Getenv("PLEX_URL")
+	plexToken := os.Getenv("PLEX_TOKEN")
 
-	// Playback/transcoding stats are mocked for now
+	// Si l'URL ou le Token ne sont pas définis, on saute cette partie
+	if plexURL != "" && plexToken != "" {
+		// On crée un client HTTP avec un timeout de 2 secondes
+		client := &http.Client{Timeout: 2 * time.Second}
+
+		// On prépare la requête GET vers l'endpoint /status/sessions
+		req, err := http.NewRequest("GET", plexURL+"/status/sessions", nil)
+		if err == nil {
+			// On ajoute les en-têtes nécessaires pour l'authentification et le format
+			req.Header.Add("Accept", "application/json")
+			req.Header.Add("X-Plex-Token", plexToken)
+
+			// On exécute la requête
+			resp, err := client.Do(req)
+			if err == nil {
+				defer resp.Body.Close()
+
+				// On décode la réponse JSON dans nos structs
+				var sessionResponse PlexSessionResponse
+				err = json.NewDecoder(resp.Body).Decode(&sessionResponse)
+				if err == nil {
+					// On a réussi ! On met à jour nos compteurs.
+					playing = sessionResponse.MediaContainer.Size
+					for _, media := range sessionResponse.MediaContainer.Metadata {
+						if len(media.TranscodeSession) > 0 {
+							transcoding++
+						}
+					}
+				}
+			}
+		}
+		if err != nil {
+			log.Printf("Erreur lors de l'appel à l'API Plex: %v", err)
+		}
+	}
+
 	return StreamingInfo{
-		Films:      countItemsInDir(filmsPath),
-		Series:     countItemsInDir(seriesPath),
-		Animes:     countItemsInDir(animesPath),
-		Playing:    2,  // TODO: Replace with real data from Plex/Jellyfin API
-		Transcoding: 1,  // TODO: Replace with real data from Plex/Jellyfin API
+		Films:      films,
+		Series:     series,
+		Animes:     animes,
+		Playing:    playing,
+		Transcoding: transcoding,
 	}
 }
 
