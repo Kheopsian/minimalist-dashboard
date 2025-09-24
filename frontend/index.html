@@ -192,8 +192,6 @@
             if (element) { element.style.width = value; }
         }
 
-        updateTextContent('#cpu-usage', data.cpu.usage);
-
         // CPU Usage
         updateTextContent('#cpu-usage', data.cpu.usage);
         updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
@@ -232,6 +230,51 @@
         updateTextContent('.sysinfo-list li:nth-child(1) span:last-child', data.system.os);
         updateTextContent('.sysinfo-list li:nth-child(2) span:last-child', data.system.kernel);
         updateTextContent('.sysinfo-list li:nth-child(3) span:last-child', data.system.cpu);
+
+        if (data.zfsConfig && data.zfsConfig.poolName) {
+            // Mise à jour de l'en-tête
+            updateTextContent('#zfs-card .pool-name', data.zfsConfig.poolName);
+            const statusElement = document.querySelector('#zfs-card .pool-status');
+            if (statusElement) {
+                statusElement.textContent = data.zfsConfig.poolStatus;
+                statusElement.className = 'pool-status ' + data.zfsConfig.poolStatus.toLowerCase();
+            }
+
+            // Sélection des listes où on va insérer les vdevs
+            const dataVdevTree = document.querySelector('#zfs-card .zfs-column:nth-child(1) .zfs-tree');
+            const cacheVdevTree = document.querySelector('#zfs-card .zfs-column:nth-child(2) .zfs-tree');
+
+            if (dataVdevTree && cacheVdevTree) {
+                // On vide les listes avant de les reconstruire
+                dataVdevTree.innerHTML = '';
+                cacheVdevTree.innerHTML = '';
+
+                // On construit les vdevs de données
+                data.zfsConfig.dataVdevs.forEach(vdev => {
+                    const vdevLi = document.createElement('li');
+                    let devicesHtml = '<ul>';
+                    vdev.devices.forEach(device => {
+                        devicesHtml += `<li><i class="fas fa-hdd"></i> ${device}</li>`;
+                    });
+                    devicesHtml += '</ul>';
+                    vdevLi.innerHTML = `<i class="fas fa-layer-group"></i> ${vdev.name} <span class="device-status">${vdev.status}</span>${devicesHtml}`;
+                    dataVdevTree.appendChild(vdevLi);
+                });
+
+                // On construit le vdev de cache (s'il existe)
+                if (data.zfsConfig.cacheVdev) {
+                    const vdev = data.zfsConfig.cacheVdev;
+                    const vdevLi = document.createElement('li');
+                    let devicesHtml = '<ul>';
+                    vdev.devices.forEach(device => {
+                        devicesHtml += `<li><i class="fas fa-microchip"></i> ${device}</li>`;
+                    });
+                    devicesHtml += '</ul>';
+                    vdevLi.innerHTML = `<i class="fas fa-bolt"></i> ${vdev.name} <span class="device-status">${vdev.status}</span>${devicesHtml}`;
+                    cacheVdevTree.appendChild(vdevLi);
+                }
+            }
+        }
     };
 
     socket.onclose = function(event) {

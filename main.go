@@ -268,9 +268,11 @@ func getARCCacheInfo() ARCCache {
 }
 
 func getZFSConfig() ZFSConfig {
+	log.Println("--- Début getZFSConfig (Debug v2) ---")
+
 	content, err := os.ReadFile("/app/zpool_status.txt")
 	if err != nil {
-		log.Printf("Erreur getZFSConfig: impossible de lire /app/zpool_status.txt: %v", err)
+		log.Printf("[ERREUR] Impossible de lire /app/zpool_status.txt: %v", err)
 		return ZFSConfig{}
 	}
 
@@ -298,17 +300,12 @@ func getZFSConfig() ZFSConfig {
 			inConfigSection = true
 			continue
 		}
-		// NOUVELLE CONDITION : On arrête tout si on arrive à la section des erreurs
-		if strings.HasPrefix(line, "errors:") {
-			break
-		}
-		if !inConfigSection || len(strings.TrimSpace(line)) == 0 {
-			continue
-		}
-		if strings.HasPrefix(strings.TrimSpace(line), config.PoolName) {
-			continue
-		}
+		if strings.HasPrefix(line, "errors:") { break }
+		if !inConfigSection || len(strings.TrimSpace(line)) == 0 { continue }
+		if strings.HasPrefix(strings.TrimSpace(line), config.PoolName) { continue }
 		
+		log.Printf("Ligne en cours de traitement: '%s'", strings.TrimSpace(line))
+
 		fields := strings.Fields(line)
 		if len(fields) < 2 { continue }
 		
@@ -316,19 +313,27 @@ func getZFSConfig() ZFSConfig {
 		deviceStatus := fields[1]
 
 		if strings.Contains(deviceName, "raidz") || strings.Contains(deviceName, "mirror") {
+			log.Printf("  -> Détecté comme VDEV de données: %s", deviceName)
 			dataVdevs = append(dataVdevs, ZPoolVdev{Name: deviceName, Status: deviceStatus})
 			lastVdev = &dataVdevs[len(dataVdevs)-1]
+			log.Printf("  ==> 'Parent' actuel défini sur: %s", lastVdev.Name)
 		} else if deviceName == "cache" {
+			log.Printf("  -> Détecté comme VDEV de cache: %s", deviceName)
 			cacheVdev = &ZPoolVdev{Name: deviceName, Status: deviceStatus}
 			lastVdev = cacheVdev
+			log.Printf("  ==> 'Parent' actuel défini sur: %s", lastVdev.Name)
 		} else if lastVdev != nil {
+			log.Printf("  -> Détecté comme disque: %s. Ajout au parent '%s'", deviceName, lastVdev.Name)
 			lastVdev.Devices = append(lastVdev.Devices, deviceName)
-		}
+		} else {
+            log.Printf("  -> Ligne ignorée (pas de parent trouvé): %s", deviceName)
+        }
 	}
 	
 	config.DataVdevs = dataVdevs
 	config.CacheVdev = cacheVdev
 	
+	log.Println("--- Fin getZFSConfig (Debug v2) ---")
 	return config
 }
 
