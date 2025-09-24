@@ -130,13 +130,21 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .network-stat span:first-child .fas { margin-right: 5px; }
 .network-stat span:last-child { font-weight: 700; }
 .network-chart-container { position: relative; height: 80px; }
-#ram-card .metric-value {
-    font-size: 2.0rem;
+#ram-card .card-body {
+    align-items: center;
+}
+
+.ram-usage-main {
+    font-family: var(--font-family-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
     white-space: nowrap;
-    text-align: center;
-    line-height: 1.2;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+.ram-usage-percent {
+    font-family: var(--font-family-mono);
+    font-size: 1.2rem;
+    color: var(--secondary-text-color);
 }
 #cpu-card .cpu-main-stats {
     align-items: center;

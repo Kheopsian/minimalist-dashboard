@@ -73,7 +73,8 @@
             <div class="metric-card" id="ram-card">
                 <div class="metric-label">RAM USAGE</div>
                 <div class="card-body">
-                    <div class="metric-value" id="ram-usage">--.- GB / ---.- GB (--.-%)</div>
+                    <div class="ram-usage-main" id="ram-usage-gb">--.- GB / ---.- GB</div>
+                    <div class="ram-usage-percent" id="ram-usage-percent">(--.-%)</div>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="ram-progress-bar"></div>
@@ -272,7 +273,8 @@
         }
 
         // RAM Usage
-        updateTextContent('#ram-usage', `${data.ram.used} / ${data.ram.total} (${data.ram.percent})`);
+        updateTextContent('#ram-usage-gb', `${data.ram.used} / ${data.ram.total}`);
+        updateTextContent('#ram-usage-percent', `(${data.ram.percent})`);
         updateProgressBar('#ram-progress-bar', data.ram.percent);
 
         // Docker Activity
