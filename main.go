@@ -117,7 +117,7 @@ func runCommand(name string, args ...string) (string, error) {
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
-	content, err := os.ReadFile("/proc/net/dev")
+	content, err := os.ReadFile("/host/proc/net/dev")
 	if err != nil {
 		return NetCounters{}, err
 	}
