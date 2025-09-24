@@ -192,6 +192,8 @@
             if (element) { element.style.width = value; }
         }
 
+        updateTextContent('#cpu-usage', data.cpu.usage);
+
         // CPU Usage
         updateTextContent('#cpu-usage', data.cpu.usage);
         updateProgressBar('#cpu-usage + .progress-bar-container .progress-bar', data.cpu.usage);
