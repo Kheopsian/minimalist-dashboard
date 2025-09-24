@@ -130,10 +130,12 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .network-stat span:last-child { font-weight: 700; }
 .network-chart-container { position: relative; height: 80px; }
 #ram-card .metric-value {
-    font-size: clamp(1.5rem, 3.5vw, 2.0rem);
+    font-size: clamp(1.1rem, 3.2vw, 2.0rem);
     white-space: nowrap;
     text-align: center;
-    line-height: 1.2;
+    line-height: 1.2;    
+    overflow: visible;
+    text-overflow: clip;
 }
 #cpu-card .cpu-main-stats {
     align-items: center;
