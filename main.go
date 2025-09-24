@@ -134,14 +134,14 @@ func getStreamingInfo() StreamingInfo {
 }
 
 func getRAMInfo() RAMInfo {
-	out, err := runCommand("cat", "/proc/meminfo")
+	content, err := os.ReadFile("/proc/meminfo")
 	if err != nil {
-		log.Printf("Erreur getRAMInfo: %v", err)
+		log.Printf("Erreur getRAMInfo: impossible de lire /proc/meminfo: %v", err)
 		return RAMInfo{}
 	}
 
 	var memTotal, memAvailable float64
-	lines := strings.Split(out, "\n")
+	lines := strings.Split(string(content), "\n")
 
 	for _, line := range lines {
 		fields := strings.Fields(line)
@@ -155,7 +155,7 @@ func getRAMInfo() RAMInfo {
 			memAvailable, _ = strconv.ParseFloat(fields[1], 64)
 		}
 	}
-	
+
 	used := memTotal - memAvailable
 	percent := 0.0
 	if memTotal > 0 {
@@ -163,49 +163,55 @@ func getRAMInfo() RAMInfo {
 	}
 
 	return RAMInfo{
-		Used:    fmt.Sprintf("%.1f GB", used/1024/1024),
-		Total:   fmt.Sprintf("%.1f GB", memTotal/1024/1024),
-		Percent: fmt.Sprintf("%.1f%%", percent),
+		Used:       fmt.Sprintf("%.1f GB", used/1024/1024),
+		Total:      fmt.Sprintf("%.1f GB", memTotal/1024/1024),
+		Percent:    fmt.Sprintf("%.1f%%", percent),
 		PercentNum: percent,
 	}
 }
 
 
 func getSystemInfo() SystemInfo {
-	// Uptime : /proc/uptime donne l'uptime en secondes (le premier nombre)
-	uptimeOut, _ := runCommand("cat", "/proc/uptime")
+	uptimeContent, err := os.ReadFile("/proc/uptime")
 	var uptimeSeconds float64
-	if uptimeOut != "" {
-		uptimeSeconds, _ = strconv.ParseFloat(strings.Fields(uptimeOut)[0], 64)
+	if err == nil {
+		uptimeSeconds, _ = strconv.ParseFloat(strings.Fields(string(uptimeContent))[0], 64)
+	} else {
+		log.Printf("Erreur lecture uptime: %v", err)
 	}
-
-	// Formatage de l'uptime en jours, heures, minutes
 	days := int(uptimeSeconds) / (60 * 60 * 24)
 	hours := (int(uptimeSeconds) / (60 * 60)) % 24
 	minutes := (int(uptimeSeconds) / 60) % 60
 	uptimeFormatted := fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
 
-	// OS : On tente toujours /etc/os-release, c'est le standard moderne
-	osOut, _ := runCommand("cat", "/etc/os-release")
+	osContent, err := os.ReadFile("/etc/os-release")
 	var osName string
-	for _, line := range strings.Split(osOut, "\n") {
-		if strings.HasPrefix(line, "PRETTY_NAME=") {
-			osName = strings.Trim(strings.Split(line, "=")[1], `"`)
+	if err == nil {
+		for _, line := range strings.Split(string(osContent), "\n") {
+			if strings.HasPrefix(line, "PRETTY_NAME=") {
+				osName = strings.Trim(strings.Split(line, "=")[1], `"`)
+			}
 		}
+	} else {
+		log.Printf("Erreur lecture os-release: %v", err)
 	}
-    if osName == "" {
-        osName = "Unraid OS"
-    }
+	if osName == "" {
+		osName = "Unraid OS"
+	}
 
 	kernelOut, _ := runCommand("uname", "-r")
 
-	cpuOut, _ := runCommand("cat", "/proc/cpuinfo")
+	cpuContent, err := os.ReadFile("/proc/cpuinfo")
 	var cpuModel string
-	for _, line := range strings.Split(cpuOut, "\n") {
-		if strings.HasPrefix(line, "model name") {
-			cpuModel = strings.TrimSpace(strings.Split(line, ":")[1])
-			break
+	if err == nil {
+		for _, line := range strings.Split(string(cpuContent), "\n") {
+			if strings.HasPrefix(line, "model name") {
+				cpuModel = strings.TrimSpace(strings.Split(line, ":")[1])
+				break
+			}
 		}
+	} else {
+		log.Printf("Erreur lecture cpuinfo: %v", err)
 	}
 
 	return SystemInfo{
