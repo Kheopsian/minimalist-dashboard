@@ -117,30 +117,24 @@ func runCommand(name string, args ...string) (string, error) {
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
-	content, err := os.ReadFile("/host/proc/net/dev")
+	content, err := os.ReadFile("/app/net_dev.txt")
 	if err != nil {
 		return NetCounters{}, err
 	}
-
+	
 	lines := strings.Split(string(content), "\n")
-
 	for _, line := range lines[2:] {
 		fields := strings.Fields(line)
-		if len(fields) < 10 {
-			continue
-		}
+		if len(fields) < 10 { continue }
 		currentInterface := strings.TrimRight(fields[0], ":")
-
-		// On ne traite QUE la ligne de l'interface qui nous intéresse
+		
 		if currentInterface == interfaceName {
 			rx, _ := strconv.ParseFloat(fields[1], 64)
 			tx, _ := strconv.ParseFloat(fields[9], 64)
-			// Pas besoin d'additionner, on retourne directement les valeurs trouvées
 			return NetCounters{RxBytes: rx, TxBytes: tx}, nil
 		}
 	}
-	// Si on n'a pas trouvé l'interface, on retourne une erreur
-	return NetCounters{}, fmt.Errorf("interface %s non trouvée dans /proc/net/dev", interfaceName)
+	return NetCounters{}, fmt.Errorf("interface %s non trouvée dans /app/net_dev.txt", interfaceName)
 }
 
 func formatSpeed(bytesPerSecond float64) string {
