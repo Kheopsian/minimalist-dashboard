@@ -276,73 +276,60 @@ func getZFSConfig() ZFSConfig {
 
 	out := string(content)
 	config := ZFSConfig{}
-	
-	lines := strings.Split(out, "\n")
 	var dataVdevs []ZPoolVdev
 	var cacheVdev *ZPoolVdev
 	
-	// On cherche d'abord les infos simples en haut du fichier
-	for _, line := range lines {
-		if strings.Contains(line, "pool:") {
-			config.PoolName = strings.Fields(line)[1]
+	// On lit les infos simples en haut du fichier
+	for _, line := range strings.Split(out, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 { continue }
+		switch fields[0] {
+		case "pool:":
+			config.PoolName = fields[1]
+		case "state:":
+			config.PoolStatus = fields[1]
 		}
-		if strings.Contains(line, "state:") {
-			config.PoolStatus = strings.Fields(line)[1]
-		}
-	}
-
-	// Helper pour calculer l'indentation d'une ligne
-	getIndent := func(s string) int {
-		return len(s) - len(strings.TrimLeft(s, " "))
 	}
 
 	inConfigSection := false
 	var lastVdev *ZPoolVdev
-	vdevIndent := -1
 
-	for _, line := range lines {
+	for _, line := range strings.Split(out, "\n") {
 		// On ne commence le parsing qu'après l'en-tête de la configuration
 		if strings.Contains(line, "NAME") && strings.Contains(line, "STATE") {
 			inConfigSection = true
 			continue
 		}
-		if !inConfigSection || strings.TrimSpace(line) == "" {
+		if !inConfigSection || len(strings.TrimSpace(line)) == 0 {
 			continue
 		}
 
+		// On ignore la ligne qui contient le nom du pool, car on l'a déjà
+		if strings.HasPrefix(strings.TrimSpace(line), config.PoolName) {
+			continue
+		}
+		
 		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			continue
-		}
-
-		currentIndent := getIndent(line)
+		if len(fields) < 2 { continue }
+		
 		deviceName := fields[0]
 		deviceStatus := fields[1]
 
-		// La première ligne après l'en-tête (la moins indentée) est le pool, on l'ignore car on l'a déjà
-		if vdevIndent == -1 {
-			vdevIndent = currentIndent
-			continue
-		}
-
-		// Si l'indentation est la même que celle d'un vdev, c'est un nouveau vdev principal
-		if currentIndent == vdevIndent+2 { // L'indentation des vdevs est typiquement +2 par rapport au pool
-			newVdev := ZPoolVdev{Name: deviceName, Status: deviceStatus, Devices: []string{}}
-			lastVdev = &newVdev
-
-			if deviceName == "cache" {
-				cacheVdev = lastVdev
-			} else {
-				dataVdevs = append(dataVdevs, *lastVdev)
-				// On met à jour le pointeur pour la dernière entrée de la slice
-				lastVdev = &dataVdevs[len(dataVdevs)-1]
-			}
-		} else if currentIndent > vdevIndent+2 && lastVdev != nil {
-			// Si c'est plus indenté, c'est un disque appartenant au dernier vdev trouvé
+		// On identifie le rôle de la ligne par son nom
+		if strings.Contains(deviceName, "raidz") || strings.Contains(deviceName, "mirror") {
+			// C'est un nouveau vdev de données
+			dataVdevs = append(dataVdevs, ZPoolVdev{Name: deviceName, Status: deviceStatus})
+			lastVdev = &dataVdevs[len(dataVdevs)-1] // On pointe sur le dernier vdev ajouté
+		} else if deviceName == "cache" {
+			// C'est le vdev de cache
+			cacheVdev = &ZPoolVdev{Name: deviceName, Status: deviceStatus}
+			lastVdev = cacheVdev
+		} else if lastVdev != nil {
+			// Si ce n'est pas un vdev, c'est un disque appartenant au dernier vdev trouvé
 			lastVdev.Devices = append(lastVdev.Devices, deviceName)
 		}
 	}
-
+	
 	config.DataVdevs = dataVdevs
 	config.CacheVdev = cacheVdev
 	
