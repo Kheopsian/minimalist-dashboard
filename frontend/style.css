@@ -185,7 +185,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 /* --- RESPONSIVE --- */
 @media (max-width: 1200px) {
     .zfs-tree ul li {
-        max-width: calc((100% - var(--spacing-unit) * 3) / 2 - var(--spacing-unit) * 2);
+        max-width: calc((100vw - var(--spacing-unit) * 20) / 2);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
