@@ -22,30 +22,60 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .hero .dot { color: var(--accent-color); }
 .subtitle { font-size: 1.5rem; color: var(--secondary-text-color); margin-top: var(--spacing-unit); }
 
-.metrics-grid { display: flex; flex-direction: column; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: calc(var(--spacing-unit) * 2); }
-.metric-card { background-color: #fff; border: 1px solid var(--border-color); padding: calc(var(--spacing-unit) * 2); border-radius: 5px; display: flex; flex-direction: column; }
+/* --- GRILLE PRINCIPALE --- */
+.metrics-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: calc(var(--spacing-unit) * 2); 
+}
 .metric-card.large-card { grid-column: span 2; }
 .metric-card.full-width { grid-column: 1 / -1; }
 
+/* --- STYLE GÉNÉRAL DES CARTES --- */
+.metric-card { 
+    background-color: #fff; 
+    border: 1px solid var(--border-color); 
+    padding: calc(var(--spacing-unit) * 2); 
+    border-radius: 5px; 
+    display: flex; 
+    flex-direction: column; 
+}
 .metric-label { font-size: 0.9rem; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--spacing-unit); }
 .metric-value { font-family: var(--font-family-mono); font-size: 2.2rem; font-weight: 700; }
-.progress-bar-container { width: 100%; height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; margin-top: var(--spacing-unit); }
-.progress-bar { height: 100%; background-color: var(--accent-color); border-radius: 4px; transition: width 0.5s ease-out; }
 
-.fas, .fab { margin-right: 10px; color: var(--secondary-text-color); width: 20px; text-align: center; }
-
+/* --- ALIGNEMENT VERTICAL (NOTRE DERNIER AJOUT) --- */
 .card-body, .cpu-main-stats {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
-
 .progress-bar-container {
-    margin-top: auto;
+    width: 100%; 
+    height: 8px; 
+    background-color: var(--border-color); 
+    border-radius: 4px; 
+    overflow: hidden; 
+    margin-top: auto; /* La règle clé pour l'alignement en bas */
 }
+.progress-bar { height: 100%; background-color: var(--accent-color); border-radius: 4px; transition: width 0.5s ease-out; }
 
-/* ZFS Card */
+/* --- STYLES SPÉCIFIQUES AUX CARTES --- */
+
+.fas, .fab { margin-right: 10px; color: var(--secondary-text-color); width: 20px; text-align: center; }
+
+/* Carte CPU */
+.cpu-main-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: var(--spacing-unit);
+}
+.cpu-temp-value { font-family: var(--font-family-mono); font-size: 1.5rem; font-weight: 700; color: var(--secondary-text-color); }
+.cpu-temp-value .fas { margin-right: 8px; color: var(--accent-color); }
+
+/* Carte ZFS */
+/* ... (tous les styles ZFS) ... */
 .zfs-header { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-family-mono); font-size: 1.2rem; margin-bottom: var(--spacing-unit); padding-bottom: var(--spacing-unit); border-bottom: 1px solid var(--border-color); }
 .pool-name { font-weight: 700; }
 .pool-status { font-size: 0.9rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
@@ -58,13 +88,15 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .zfs-tree li { padding: 0.4rem 0; position: relative; }
 .device-status { float: right; color: var(--secondary-text-color); font-size: 0.9rem; }
 
-/* System Info Card */
+
+/* Carte System Info */
 .sysinfo-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--spacing-unit); height: 100%; justify-content: center; }
 .sysinfo-list li { display: flex; justify-content: space-between; font-family: var(--font-family-mono); font-size: 1rem; }
 .sysinfo-list li span:first-child { color: var(--secondary-text-color); }
 .sysinfo-list li span:last-child { font-weight: 700; text-align: right; }
 
-/* Cache Performance Card */
+/* Carte Cache Performance */
+/* ... (tous les styles ARC) ... */
 .cache-stats-container { display: flex; align-items: center; gap: calc(var(--spacing-unit) * 3); flex-grow: 1; }
 .cache-chart-container { text-align: center; }
 .cache-chart { width: 120px; height: 120px; }
@@ -78,100 +110,28 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .cache-stat .stat-value { font-weight: 700; }
 .cache-details hr { border: none; border-top: 1px solid var(--border-color); margin: 0; }
 
-/* Docker Card */
-.metric-value.with-icon { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
-.metric-value.with-icon .fab { font-size: 2rem; color: #0db7ed; margin-right: 1.5rem; }
-.metric-value.with-icon span { font-size: 3rem; }
-.secondary-stats { display: flex; justify-content: space-around; border-top: 1px solid var(--border-color); padding-top: var(--spacing-unit); margin-top: var(--spacing-unit); font-family: var(--font-family-mono); }
-.stat-item { text-align: center; }
-.stat-item span { display: block; }
-.stat-item span:first-child { font-size: 0.8rem; color: var(--secondary-text-color); }
-.stat-item span:last-child { font-size: 1.2rem; font-weight: 700; }
 
-/* Streaming Card */
-#streaming-card {
-    justify-content: center;
-}
-.library-counts {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    flex-grow: 1;
-    align-items: center;
-    padding: var(--spacing-unit) 0;
-}
-.library-stat .count {
-    display: block;
-    font-family: var(--font-family-mono);
-    font-size: 3rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-.library-stat .label {
-    font-size: 1rem;
-    color: var(--secondary-text-color);
-}
-.streaming-activity {
-    display: flex;
-    justify-content: space-around;
-    border-top: 1px solid var(--border-color);
-    padding-top: var(--spacing-unit);
-    margin-top: var(--spacing-unit);
-    font-family: var(--font-family-mono);
-}
-.activity-stat {
-    color: var(--primary-text-color);
-    font-size: 1.1rem;
-}
+/* Carte Streaming */
+/* ... (tous les styles Streaming) ... */
+#streaming-card { justify-content: center; }
+.library-counts { display: flex; justify-content: space-around; text-align: center; flex-grow: 1; align-items: center; padding: var(--spacing-unit) 0; }
+.library-stat .count { display: block; font-family: var(--font-family-mono); font-size: 3rem; font-weight: 700; line-height: 1.1; }
+.library-stat .label { font-size: 1rem; color: var(--secondary-text-color); }
+.streaming-activity { display: flex; justify-content: space-around; border-top: 1px solid var(--border-color); padding-top: var(--spacing-unit); margin-top: var(--spacing-unit); font-family: var(--font-family-mono); }
+.activity-stat { color: var(--primary-text-color); font-size: 1.1rem; }
 
-.cpu-main-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    flex-grow: 1;
-    padding-bottom: var(--spacing-unit);
-}
 
-.cpu-temp-value {
-    font-family: var(--font-family-mono);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--secondary-text-color);
-}
+/* Carte Réseau avec Graphique */
+/* ... (tous les styles Réseau) ... */
+.network-current-stats { display: flex; justify-content: space-around; font-family: var(--font-family-mono); font-size: 1.2rem; margin-bottom: var(--spacing-unit); }
+.network-stat { text-align: center; }
+.network-stat span:first-child { font-size: 0.8rem; color: var(--secondary-text-color); text-transform: uppercase; display: block; }
+.network-stat span:first-child .fas { margin-right: 5px; }
+.network-stat span:last-child { font-weight: 700; }
+.network-chart-container { position: relative; height: 80px; }
 
-.cpu-temp-value .fas {
-    margin-right: 8px;
-    color: var(--accent-color);
-}
 
-.network-current-stats {
-    display: flex;
-    justify-content: space-around;
-    font-family: var(--font-family-mono);
-    font-size: 1.2rem;
-    margin-bottom: var(--spacing-unit);
-}
-.network-stat {
-    text-align: center;
-}
-.network-stat span:first-child {
-    font-size: 0.8rem;
-    color: var(--secondary-text-color);
-    text-transform: uppercase;
-    display: block;
-}
-.network-stat span:first-child .fas {
-    margin-right: 5px;
-}
-.network-stat span:last-child {
-    font-weight: 700;
-}
-.network-chart-container {
-    position: relative;
-    height: 80px;
-}
-
-/* Responsive Design */
+/* --- RESPONSIVE --- */
 @media (max-width: 900px) { 
     .metric-card.large-card { grid-column: span 1; } 
 }
