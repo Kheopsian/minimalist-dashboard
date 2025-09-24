@@ -116,13 +116,12 @@ func runCommand(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func getNetCounters() (NetCounters, error) {
+func getNetCounters(interfaceName string) (NetCounters, error) {
 	content, err := os.ReadFile("/proc/net/dev")
 	if err != nil {
 		return NetCounters{}, err
 	}
 
-	counters := NetCounters{}
 	lines := strings.Split(string(content), "\n")
 
 	for _, line := range lines[2:] {
@@ -130,18 +129,18 @@ func getNetCounters() (NetCounters, error) {
 		if len(fields) < 10 {
 			continue
 		}
-		interfaceName := strings.TrimRight(fields[0], ":")
+		currentInterface := strings.TrimRight(fields[0], ":")
 
-		if interfaceName == "lo" {
-			continue
+		// On ne traite QUE la ligne de l'interface qui nous intéresse
+		if currentInterface == interfaceName {
+			rx, _ := strconv.ParseFloat(fields[1], 64)
+			tx, _ := strconv.ParseFloat(fields[9], 64)
+			// Pas besoin d'additionner, on retourne directement les valeurs trouvées
+			return NetCounters{RxBytes: rx, TxBytes: tx}, nil
 		}
-
-		rx, _ := strconv.ParseFloat(fields[1], 64)
-		tx, _ := strconv.ParseFloat(fields[9], 64)
-		counters.RxBytes += rx
-		counters.TxBytes += tx
 	}
-	return counters, nil
+	// Si on n'a pas trouvé l'interface, on retourne une erreur
+	return NetCounters{}, fmt.Errorf("interface %s non trouvée dans /proc/net/dev", interfaceName)
 }
 
 func formatSpeed(bytesPerSecond float64) string {
@@ -450,6 +449,10 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 	fmt.Println("Nouveau client connecté au WebSocket")
 
+	netInterface := os.Getenv("NET_INTERFACE")
+	if netInterface == "" {
+		netInterface = "eth0"
+	}
 	var prevCPUTimes CPUTimes
 	prevCPUTimes, _ = getCPUTimes()
 
@@ -471,13 +474,22 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		prevCPUTimes = currentCPUTimes
 		tempStr, tempDeg := getCPUTemp()
 
-		currentNetCounters, _ := getNetCounters()
-		deltaRx := currentNetCounters.RxBytes - prevNetCounters.RxBytes
-		deltaTx := currentNetCounters.TxBytes - prevNetCounters.TxBytes
-		prevNetCounters = currentNetCounters
+		currentNetCounters, err := getNetCounters(netInterface)
+		if err != nil {
+			log.Printf("Erreur getNetCounters: %v", err)
+		} else {
+			deltaRx := currentNetCounters.RxBytes - prevNetCounters.RxBytes
+			deltaTx := currentNetCounters.TxBytes - prevNetCounters.TxBytes
+			prevNetCounters = currentNetCounters
 
-		rxSpeed := deltaRx / elapsedSeconds
-		txSpeed := deltaTx / elapsedSeconds
+			rxSpeed := deltaRx / elapsedSeconds
+			txSpeed := deltaTx / elapsedSeconds
+
+			metrics.Net = NetTraffic {
+				In:  formatSpeed(rxSpeed),
+				Out: formatSpeed(txSpeed),
+			}
+		}
 
 		prevTime = currentTime
 
@@ -487,10 +499,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 			Usage:   fmt.Sprintf("%.0f%%", cpuUsagePercent),
 			Temp:    tempStr,
 			TempDeg: tempDeg,
-		}
-		metrics.Net = NetTraffic{
-			In:  formatSpeed(rxSpeed),
-			Out: formatSpeed(txSpeed),
 		}
 
 		jsonMessage, _ := json.Marshal(metrics)

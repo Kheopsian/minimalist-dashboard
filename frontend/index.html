@@ -310,6 +310,9 @@
             const tempRotation = (data.cpu.tempDeg / 100) * 180;
             tempGauge.style.transform = `rotate(${tempRotation}deg)`;
         }
+
+        updateTextContent('#net-in', data.net.in);
+        updateTextContent('#net-out', data.net.out);
     };
 
     socket.onclose = function(event) {
