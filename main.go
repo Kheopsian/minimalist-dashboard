@@ -341,11 +341,13 @@ func getARCCacheInfo() ARCCache {
 }
 
 func getZFSConfig() ZFSConfig {
-	out, err := runCommand("zpool", "status")
-    if err != nil {
-        log.Printf("Erreur getZFSConfig: %v", err)
-        return ZFSConfig{}
-    }
+	content, err := os.ReadFile("/app/zpool_status.txt")
+	if err != nil {
+		log.Printf("Erreur getZFSConfig: impossible de lire /app/zpool_status.txt: %v", err)
+		return ZFSConfig{}
+	}
+
+	out := string(content)
 
 	config := ZFSConfig{}
 	var dataVdevs []ZPoolVdev
