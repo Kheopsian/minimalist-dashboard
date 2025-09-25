@@ -158,7 +158,7 @@ func getDiskInfo() (DiskInfo, error) {
 		Percent:  fields[4],
 		PercentNum: percentNum,
 		MountPoint: fields[5],
-	}
+	}, nil
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
