@@ -12,7 +12,6 @@ import (
 	"strings"
 	"strconv"
 	"os"
-	"path/filepath"
 )
 
 type PlexSessionResponse struct {
@@ -128,7 +127,7 @@ func runCommand(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func getDiskInfo() (DiskInfo, error) {
+func getDiskInfo() (DiskInfo) {
 	monitorPath := os.Getenv("PATH_FILMS")
 	if monitorPath == "" {
 		monitorPath = "/"
@@ -159,7 +158,7 @@ func getDiskInfo() (DiskInfo, error) {
 		Percent:  fields[4],
 		PercentNum: percentNum,
 		MountPoint: fields[5],
-	}, nil
+	}
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
