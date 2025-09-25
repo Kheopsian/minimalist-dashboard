@@ -219,6 +219,9 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     .container { padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); }
     .header { padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); }
     .metrics-grid { width: 100%; }
+    .zfs-tree ul li {
+        max-width: calc((100vw - var(--spacing-unit) * 10));
+    }
 }
 /* --- DARK MODE --- */
 body.dark-mode {
