@@ -151,9 +151,15 @@ func getDiskInfo() (DiskInfo, error) {
 	percentStr := strings.TrimRight(fields[4], "%")
 	percentNum, _ := strconv.ParseFloat(percentStr, 64)
 
+	totalK, _ := strconv.ParseFloat(fields[1], 64)
+	usedK, _ := strconv.ParseFloat(fields[2], 64)
+
+	// Convertir de Kio à Tio (1024*1024*1024)
+	kibToTb := 1024.0 * 1024.0 * 1024.0
+
 	return DiskInfo{
-		Total:    fields[1],
-		Used:     fields[2],
+		Total:    fmt.Sprintf("%.2f TB", totalK/kibToTb),
+		Used:     fmt.Sprintf("%.2f TB", usedK/kibToTb),
 		Free:     fields[3],
 		Percent:  fields[4],
 		PercentNum: percentNum,

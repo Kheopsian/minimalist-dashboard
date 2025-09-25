@@ -157,6 +157,9 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     font-size: 1.2rem;
     color: var(--secondary-text-color);
 }
+#disk-card .card-body {
+    align-items: center;
+}
 #cpu-card .cpu-main-stats {
     align-items: center;
 }
