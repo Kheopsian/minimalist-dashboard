@@ -127,7 +127,7 @@ func runCommand(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func getDiskInfo() (DiskInfo) {
+func getDiskInfo() (DiskInfo, error) {
 	monitorPath := os.Getenv("PATH_FILMS")
 	if monitorPath == "" {
 		monitorPath = "/"
@@ -502,6 +502,7 @@ func getDockerInfo() DockerInfo {
 
 // collectAllMetrics gathers all system metrics.
 func collectAllMetrics() GlobalMetrics {
+	diskInfo, _ := getDiskInfo()
 
 	metrics := GlobalMetrics{
 		RAM: getRAMInfo(),
@@ -509,8 +510,8 @@ func collectAllMetrics() GlobalMetrics {
 		Streaming: getStreamingInfo(),
 		Docker: getDockerInfo(),
 		ZFSConfig: getZFSConfig(),
-		ARCCache:  getARCCacheInfo(), 
-		Disk:      getDiskInfo(),
+		ARCCache:  getARCCacheInfo(),
+		Disk:      diskInfo,
 	}
 	return metrics
 }
