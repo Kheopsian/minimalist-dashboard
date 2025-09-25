@@ -35,24 +35,24 @@
                 <div class="metric-label">Mediatheque & Streaming Activity</div>
                 <div class="library-counts">
                     <div class="library-stat">
-                        <span class="count">1923</span>
+                        <span class="count">-</span>
                         <span class="label">Movies</span>
                     </div>
                     <div class="library-stat">
-                        <span class="count">812</span>
+                        <span class="count">-</span>
                         <span class="label">Shows</span>
                     </div>
                     <div class="library-stat">
-                        <span class="count">350</span>
+                        <span class="count">-</span>
                         <span class="label">Animes</span>
                     </div>
                 </div>
                 <div class="streaming-activity">
                     <div class="activity-stat">
-                        <i class="fas fa-play-circle"></i> 2 currently playing
+                        <i class="fas fa-play-circle"></i> - currently playing
                     </div>
                     <div class="activity-stat">
-                        <i class="fas fa-cogs"></i> 1 active transcoding
+                        <i class="fas fa-cogs"></i> - active transcoding
                     </div>
                 </div>
             </div>
@@ -88,21 +88,21 @@
                 <div class="metric-label">Docker Activity</div>
                 <div class="metric-value with-icon">
                     <i class="fab fa-docker"></i>
-                    <span id="docker-containers">22</span>
+                    <span id="docker-containers">-</span>
                 </div>
                 <div class="secondary-stats">
                     <div class="stat-item">
                         <span>Images</span>
-                        <span id="docker-images">128</span>
+                        <span id="docker-images">-</span>
                     </div>
                     <div class="stat-item">
                         <span>Volumes</span>
-                        <span id="docker-volumes">35</span>
+                        <span id="docker-volumes">-</span>
                     </div>
                 </div>
             </div>
 
-            <div class="metric-card" id="network-card">
+            <div class="metric-card large-card" id="network-card">
                 <div class="metric-label">Network Traffic</div>
                 <div class="network-current-stats">
                     <div class="network-stat">
@@ -119,10 +119,21 @@
                 </div>
             </div>
 
+            <div class="metric-card" id="disk-card">
+                <div class="metric-label">Disk Usage (<span id="disk-mount-point">/</span>)</div>
+                <div class="card-body">
+                    <div class="ram-usage-main" id="disk-usage-gb">--.- GB / ---.- GB</div>
+                    <div class="ram-usage-percent" id="disk-usage-percent">(--.-%)</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="disk-progress-bar"></div>
+                </div>
+            </div>
+
             <div class="metric-card full-width" id="zfs-card">
                 <div class="metric-label">ZFS Pool Configuration</div>
                 <div class="zfs-header">
-                    <span class="pool-name"><i class="fas fa-database"></i> rpool</span>
+                    <span class="pool-name"><i class="fas fa-database"></i>pool</span>
                     <span class="pool-status online"><i class="fas fa-check-circle"></i> ONLINE</span>
                 </div>
                 <div class="zfs-layout">
@@ -131,18 +142,18 @@
                         <ul class="zfs-tree">
                             <li><i class="fas fa-layer-group"></i> raidz1-0 <span class="device-status">ONLINE</span>
                                 <ul>
-                                    <li><i class="fas fa-hdd"></i> disk-01</li>
-                                    <li><i class="fas fa-hdd"></i> disk-02</li>
-                                    <li><i class="fas fa-hdd"></i> disk-03</li>
-                                    <li><i class="fas fa-hdd"></i> disk-04</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
                                 </ul>
                             </li>
-                            <li><i class="fas fa-layer-group"></i> raidz1-1 <span class="device-status">ONLINE</span>
+                            <li><i class="fas fa-layer-group"></i>-<span class="device-status">ONLINE</span>
                                 <ul>
-                                    <li><i class="fas fa-hdd"></i> disk-05</li>
-                                    <li><i class="fas fa-hdd"></i> disk-06</li>
-                                    <li><i class="fas fa-hdd"></i> disk-07</li>
-                                    <li><i class="fas fa-hdd"></i> disk-08</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
+                                    <li><i class="fas fa-hdd"></i>-</li>
                                 </ul>
                             </li>
                         </ul>
@@ -167,27 +178,27 @@
                         <svg viewBox="0 0 36 36" class="cache-chart">
                             <path class="chart-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
                             <path class="chart-circle" stroke-dasharray="97, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
-                            <text x="18" y="20.35" class="chart-text">97%</text>
+                            <text x="18" y="20.35" class="chart-text">- %</text>
                         </svg>
                         <div class="chart-label">ARC Hit Rate</div>
                     </div>
                     <div class="cache-details">
                         <div class="cache-stat">
                             <span>ARC Size (RAM)</span>
-                            <span class="stat-value">64.5 GB</span>
+                            <span class="stat-value"> - GB</span>
                         </div>
                         <div class="cache-stat">
                             <span>ARC Max Size</span>
-                            <span class="stat-value">65.0 GB</span>
+                            <span class="stat-value">- GB</span>
                         </div>
                         <hr>
                         <div class="cache-stat">
                             <span>L2ARC Size (NVMe)</span>
-                            <span class="stat-value">480.1 GB</span>
+                            <span class="stat-value">- GB</span>
                         </div>
                         <div class="cache-stat">
                             <span>L2ARC Hit Rate</span>
-                            <span class="stat-value">68.2 %</span>
+                            <span class="stat-value">- %</span>
                         </div>
                     </div>
                 </div>
@@ -196,9 +207,9 @@
             <div class="metric-card">
                 <div class="metric-label">System Information</div>
                 <ul class="sysinfo-list">
-                    <li><span>OS</span><span>Debian 12 Bookworm</span></li>
-                    <li><span>Kernel</span><span>6.1.0-18-amd64</span></li>
-                    <li><span>CPU</span><span>AMD Ryzen 7 5800X</span></li>
+                    <li><span>OS</span><span>-</span></li>
+                    <li><span>Kernel</span><span>-</span></li>
+                    <li><span>CPU</span><span>-</span></li>
                 </ul>
             </div>
         </section>
@@ -208,7 +219,7 @@
     const networkChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array(30).fill(''), // 30 points de données (1 minute à 2s d'intervalle)
+            labels: Array(30).fill(''),
             datasets: [{
                 label: 'In (Mb/s)',
                 data: Array(30).fill(0),
@@ -383,6 +394,11 @@
         chartData.datasets[1].data.shift();
         
         networkChart.update();
+
+        updateTextContent('#disk-mount-point', data.disk.mountPoint);
+        updateTextContent('#disk-usage-gb', `${data.disk.used} / ${data.disk.total}`);
+        updateTextContent('#disk-usage-percent', `(${data.disk.percent})`);
+        updateProgressBar('#disk-progress-bar', data.disk.percent);
     };
 
     socket.onclose = function(event) {

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"strconv"
 	"os"
+	"path/filepath"
 )
 
 type PlexSessionResponse struct {
@@ -49,11 +50,12 @@ type RAMInfo struct {
 }
 
 type DiskInfo struct {
-	Total    string `json:"total"`
-	Used     string `json:"used"`
-	Free     string `json:"free"`
-	Percent  string `json:"percent"`
+	Total      string  `json:"total"`
+	Used       string  `json:"used"`
+	Free       string  `json:"free"`
+	Percent    string  `json:"percent"`
 	PercentNum float64 `json:"percentNum"`
+	MountPoint string  `json:"mountPoint"`
 }
 
 type NetTraffic struct {
@@ -124,6 +126,41 @@ func runCommand(name string, args ...string) (string, error) {
 		return "", fmt.Errorf("error executing '%s %v': %w", name, args, err)
 	}
 	return strings.TrimSpace(string(output)), nil
+}
+
+func getDiskInfo() (DiskInfo, error) {
+	// Find the mount point for the given path
+	monitorPath := os.Getenv("PATH_FILMS")
+	if monitorPath == "" {
+		monitorPath = "/"
+	}
+
+	out, err := runCommand("df", monitorPath)
+	if err != nil {
+		return DiskInfo{}, err
+	}
+
+	lines := strings.Split(out, "\n")
+	if len(lines) < 2 {
+		return DiskInfo{}, fmt.Errorf("invalid df output")
+	}
+
+	fields := strings.Fields(lines[1])
+	if len(fields) < 6 {
+		return DiskInfo{}, fmt.Errorf("invalid df fields")
+	}
+
+	percentStr := strings.TrimRight(fields[4], "%")
+	percentNum, _ := strconv.ParseFloat(percentStr, 64)
+
+	return DiskInfo{
+		Total:    fields[1],
+		Used:     fields[2],
+		Free:     fields[3],
+		Percent:  fields[4],
+		PercentNum: percentNum,
+		MountPoint: fields[5],
+	}, nil
 }
 
 func getNetCounters(interfaceName string) (NetCounters, error) {
@@ -467,6 +504,7 @@ func getDockerInfo() DockerInfo {
 
 // collectAllMetrics gathers all system metrics.
 func collectAllMetrics() GlobalMetrics {
+
 	metrics := GlobalMetrics{
 		RAM: getRAMInfo(),
 		System: getSystemInfo(),
@@ -474,8 +512,7 @@ func collectAllMetrics() GlobalMetrics {
 		Docker: getDockerInfo(),
 		ZFSConfig: getZFSConfig(),
 		ARCCache:  getARCCacheInfo(), 
-		
-		Disk: DiskInfo{Total: "8 TB", Used: "4.5 TB", Free: "3.5 TB", Percent: "56.2%", PercentNum: 56.2},
+		Disk:      getDiskInfo()
 	}
 	return metrics
 }
