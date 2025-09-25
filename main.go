@@ -73,7 +73,7 @@ type ZFSConfig struct {
 	PoolName    string      `json:"poolName"`
 	PoolStatus  string      `json:"poolStatus"`
 	DataVdevs   []ZPoolVdev `json:"dataVdevs"`
-	CacheVdev   *ZPoolVdev  `json:"cacheVdev,omitempty"` // Pointer to handle absence of L2ARC
+	CacheVdev   *ZPoolVdev  `json:"cacheVdev,omitempty"`
 }
 
 type ARCCache struct {
@@ -129,7 +129,6 @@ func runCommand(name string, args ...string) (string, error) {
 }
 
 func getDiskInfo() (DiskInfo, error) {
-	// Find the mount point for the given path
 	monitorPath := os.Getenv("PATH_FILMS")
 	if monitorPath == "" {
 		monitorPath = "/"
@@ -512,7 +511,7 @@ func collectAllMetrics() GlobalMetrics {
 		Docker: getDockerInfo(),
 		ZFSConfig: getZFSConfig(),
 		ARCCache:  getARCCacheInfo(), 
-		Disk:      getDiskInfo()
+		Disk:      getDiskInfo(),
 	}
 	return metrics
 }
