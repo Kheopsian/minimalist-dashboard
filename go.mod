@@ -1,4 +1,4 @@
-module dashboard-api
+module minimalist-dashboard
 
 go 1.25.1
 
