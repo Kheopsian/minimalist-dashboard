@@ -52,6 +52,7 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }
 .progress-bar-container {
     width: 100%; 
@@ -159,6 +160,9 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 }
 #disk-card .card-body {
     align-items: center;
+}
+#disk-card .ram-usage-main {
+    font-size: 1.7rem;
 }
 #cpu-card .cpu-main-stats {
     align-items: center;

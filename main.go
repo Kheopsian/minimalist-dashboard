@@ -158,8 +158,8 @@ func getDiskInfo() (DiskInfo, error) {
 	kibToTb := 1024.0 * 1024.0 * 1024.0
 
 	return DiskInfo{
-		Total:    fmt.Sprintf("%.2f TB", totalK/kibToTb),
-		Used:     fmt.Sprintf("%.2f TB", usedK/kibToTb),
+		Total:    fmt.Sprintf("%.1f TB", totalK/kibToTb),
+		Used:     fmt.Sprintf("%.1f TB", usedK/kibToTb),
 		Free:     fields[3],
 		Percent:  fields[4],
 		PercentNum: percentNum,
