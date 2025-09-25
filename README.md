@@ -2,7 +2,7 @@
   <img src="frontend/assets/images/favicon.png" alt="Minimalist Dashboard" width="120" height="120">
   <h1>Minimalist Dashboard</h1>
   
-  [![Docker Image CI](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml)
+  [![Docker Image CI](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml)
   [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker)](https://ghcr.io/kheopsian/minimalist-dashboard)
   [![Go Version](https://img.shields.io/badge/go-1.25+-blue?logo=go)](https://golang.org/)
   [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
