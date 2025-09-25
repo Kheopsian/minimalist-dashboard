@@ -1,6 +1,6 @@
 package models
 
-// PlexSessionResponse représente la réponse de l'API Plex pour les sessions actives
+// PlexSessionResponse represents the Plex API response for active sessions
 type PlexSessionResponse struct {
 	MediaContainer struct {
 		Size     int                `json:"size"`
@@ -8,31 +8,31 @@ type PlexSessionResponse struct {
 	} `json:"MediaContainer"`
 }
 
-// PlexSessionMedia représente les métadonnées d'une session Plex
+// PlexSessionMedia represents metadata for a Plex session
 type PlexSessionMedia struct {
 	TranscodeSession map[string]interface{} `json:"TranscodeSession"`
 }
 
-// CPUInfo contient les informations sur le processeur
+// CPUInfo contains processor information
 type CPUInfo struct {
 	Usage    string  `json:"usage"`
 	Temp     string  `json:"temp"`
 	TempDeg  float64 `json:"tempDeg"`
 }
 
-// NetCounters représente les compteurs réseau bruts
+// NetCounters represents raw network counters
 type NetCounters struct {
 	RxBytes float64
 	TxBytes float64
 }
 
-// CPUTimes représente les temps CPU pour le calcul d'utilisation
+// CPUTimes represents CPU times for usage calculation
 type CPUTimes struct {
 	Idle  float64
 	Total float64
 }
 
-// RAMInfo contient les informations sur la mémoire RAM
+// RAMInfo contains RAM memory information
 type RAMInfo struct {
 	Used       string  `json:"used"`
 	Total      string  `json:"total"`
@@ -40,7 +40,7 @@ type RAMInfo struct {
 	PercentNum float64 `json:"percentNum"`
 }
 
-// DiskInfo contient les informations sur le stockage
+// DiskInfo contains storage information
 type DiskInfo struct {
 	Total      string  `json:"total"`
 	Used       string  `json:"used"`
@@ -50,20 +50,20 @@ type DiskInfo struct {
 	MountPoint string  `json:"mountPoint"`
 }
 
-// NetTraffic représente le trafic réseau formaté
+// NetTraffic represents formatted network traffic
 type NetTraffic struct {
 	In  string `json:"in"`
 	Out string `json:"out"`
 }
 
-// ZPoolVdev représente un vdev ZFS
+// ZPoolVdev represents a ZFS vdev
 type ZPoolVdev struct {
 	Name    string   `json:"name"`
 	Status  string   `json:"status"`
 	Devices []string `json:"devices"`
 }
 
-// ZFSConfig contient la configuration ZFS
+// ZFSConfig contains ZFS configuration
 type ZFSConfig struct {
 	PoolName   string      `json:"poolName"`
 	PoolStatus string      `json:"poolStatus"`
@@ -71,7 +71,7 @@ type ZFSConfig struct {
 	CacheVdev  *ZPoolVdev  `json:"cacheVdev,omitempty"`
 }
 
-// ARCCache contient les informations sur le cache ARC ZFS
+// ARCCache contains ZFS ARC cache information
 type ARCCache struct {
 	ARCSize       string  `json:"arcSize"`
 	ARCMaxSize    string  `json:"arcMaxSize"`
@@ -81,7 +81,7 @@ type ARCCache struct {
 	L2ARCHitRate  string  `json:"l2arcHitRate"`
 }
 
-// SystemInfo contient les informations système générales
+// SystemInfo contains general system information
 type SystemInfo struct {
 	OS     string `json:"os"`
 	Kernel string `json:"kernel"`
@@ -89,14 +89,14 @@ type SystemInfo struct {
 	Uptime string `json:"uptime"`
 }
 
-// DockerInfo contient les informations sur Docker
+// DockerInfo contains Docker information
 type DockerInfo struct {
 	Containers int `json:"containers"`
 	Images     int `json:"images"`
 	Volumes    int `json:"volumes"`
 }
 
-// StreamingInfo contient les informations sur les services de streaming
+// StreamingInfo contains streaming services information
 type StreamingInfo struct {
 	Films       int `json:"films"`
 	Series      int `json:"series"`
@@ -105,7 +105,7 @@ type StreamingInfo struct {
 	Transcoding int `json:"transcoding"`
 }
 
-// GlobalMetrics regroupe toutes les métriques envoyées au frontend
+// GlobalMetrics groups all metrics sent to the frontend
 type GlobalMetrics struct {
 	CPU       CPUInfo       `json:"cpu"`
 	RAM       RAMInfo       `json:"ram"`

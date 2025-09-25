@@ -5,15 +5,15 @@ import (
 	"minimalist-dashboard/internal/utils"
 )
 
-// DockerService gère les informations Docker
+// DockerService manages Docker information
 type DockerService struct{}
 
-// NewDockerService crée une nouvelle instance du service Docker
+// NewDockerService creates a new Docker service instance
 func NewDockerService() *DockerService {
 	return &DockerService{}
 }
 
-// GetDockerInfo récupère les informations Docker
+// GetDockerInfo retrieves Docker information
 func (d *DockerService) GetDockerInfo() models.DockerInfo {
 	containersOut, _ := utils.RunCommand("docker", "ps", "--format", "{{.ID}}")
 	imagesOut, _ := utils.RunCommand("docker", "images", "--format", "{{.ID}}")

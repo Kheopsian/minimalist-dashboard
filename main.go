@@ -11,23 +11,23 @@ import (
 )
 
 func main() {
-	// Chargement de la configuration
+	// Load configuration
 	cfg := config.Load()
 
-	// Initialisation des services
+	// Initialize services
 	metricsService := services.NewMetricsService(cfg)
 
-	// Initialisation des handlers
+	// Initialize handlers
 	wsHandler := handlers.NewWebSocketHandler(cfg, metricsService)
 
-	// Configuration des routes
+	// Configure routes
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fileServer)
 	http.HandleFunc("/ws", wsHandler.HandleConnections)
 
-	// Démarrage du serveur
+	// Start server
 	listenAddr := ":" + cfg.WebUIPort
-	fmt.Printf("Serveur démarré. Rendez-vous sur http://localhost:%s\n", cfg.WebUIPort)
+	fmt.Printf("Server started. Go to http://localhost:%s\n", cfg.WebUIPort)
 	err := http.ListenAndServe(listenAddr, nil)
 	if err != nil {
 		log.Fatal(err)

@@ -10,19 +10,19 @@ import (
 	"minimalist-dashboard/internal/models"
 )
 
-// ZFSService gère les informations ZFS
+// ZFSService manages ZFS information
 type ZFSService struct{}
 
-// NewZFSService crée une nouvelle instance du service ZFS
+// NewZFSService creates a new ZFS service instance
 func NewZFSService() *ZFSService {
 	return &ZFSService{}
 }
 
-// GetZFSConfig récupère la configuration ZFS
+// GetZFSConfig retrieves ZFS configuration
 func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 	content, err := os.ReadFile("/app/zpool_status.txt")
 	if err != nil {
-		log.Printf("Erreur getZFSConfig: impossible de lire /app/zpool_status.txt: %v", err)
+		log.Printf("Error getZFSConfig: unable to read /app/zpool_status.txt: %v", err)
 		return models.ZFSConfig{}
 	}
 
@@ -65,11 +65,11 @@ func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 
 		fields := strings.Fields(line)
 		if len(fields) == 0 {
-			continue // On ignore les lignes complètement vides
+			continue // Ignore completely empty lines
 		}
 
 		deviceName := fields[0]
-		deviceStatus := "" // Statut par défaut
+		deviceStatus := "" // Default status
 		if len(fields) > 1 {
 			deviceStatus = fields[1]
 		}
@@ -91,18 +91,18 @@ func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 	return config
 }
 
-// GetARCCacheInfo récupère les informations du cache ARC
+// GetARCCacheInfo retrieves ARC cache information
 func (z *ZFSService) GetARCCacheInfo() models.ARCCache {
 	content, err := os.ReadFile("/proc/spl/kstat/zfs/arcstats")
 	if err != nil {
-		log.Printf("Erreur getARCCacheInfo: impossible de lire /proc/spl/kstat/zfs/arcstats: %v", err)
+		log.Printf("Error getARCCacheInfo: unable to read /proc/spl/kstat/zfs/arcstats: %v", err)
 		return models.ARCCache{}
 	}
 
 	stats := make(map[string]float64)
 	lines := strings.Split(string(content), "\n")
 
-	// La 3ème ligne contient les en-têtes, les données commencent après
+	// The 3rd line contains headers, data starts after
 	if len(lines) < 3 {
 		return models.ARCCache{}
 	}
@@ -110,7 +110,7 @@ func (z *ZFSService) GetARCCacheInfo() models.ARCCache {
 	for _, line := range lines[2:] {
 		fields := strings.Fields(line)
 		if len(fields) == 3 {
-			// Le format est : nom_de_la_stat type valeur
+			// Format is: stat_name type value
 			key := fields[0]
 			value, _ := strconv.ParseFloat(fields[2], 64)
 			stats[key] = value

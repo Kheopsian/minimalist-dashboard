@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// RunCommand exécute une commande système et retourne sa sortie
+// RunCommand executes a system command and returns its output
 func RunCommand(name string, args ...string) (string, error) {
 	cmd := exec.Command(name, args...)
 	output, err := cmd.Output()
@@ -16,7 +16,7 @@ func RunCommand(name string, args ...string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-// FormatSpeed convertit des bytes/seconde en Mb/s formaté
+// FormatSpeed converts bytes/second to formatted Mb/s
 func FormatSpeed(bytesPerSecond float64) string {
 	bitsPerSecond := bytesPerSecond * 8
 	megaBitsPerSecond := bitsPerSecond / 1000000
@@ -24,7 +24,7 @@ func FormatSpeed(bytesPerSecond float64) string {
 	return fmt.Sprintf("%.1f Mb/s", megaBitsPerSecond)
 }
 
-// CountLines compte le nombre de lignes dans une chaîne
+// CountLines counts the number of lines in a string
 func CountLines(output string) int {
 	if output == "" {
 		return 0

@@ -11,22 +11,22 @@ import (
 	"minimalist-dashboard/internal/utils"
 )
 
-// SystemService gère les informations système
+// SystemService manages system information
 type SystemService struct{}
 
-// NewSystemService crée une nouvelle instance du service système
+// NewSystemService creates a new system service instance
 func NewSystemService() *SystemService {
 	return &SystemService{}
 }
 
-// GetSystemInfo récupère les informations système générales
+// GetSystemInfo retrieves general system information
 func (s *SystemService) GetSystemInfo() models.SystemInfo {
 	uptimeContent, err := os.ReadFile("/proc/uptime")
 	var uptimeSeconds float64
 	if err == nil {
 		uptimeSeconds, _ = strconv.ParseFloat(strings.Fields(string(uptimeContent))[0], 64)
 	} else {
-		log.Printf("Erreur lecture uptime: %v", err)
+		log.Printf("Error reading uptime: %v", err)
 	}
 	days := int(uptimeSeconds) / (60 * 60 * 24)
 	hours := (int(uptimeSeconds) / (60 * 60)) % 24
@@ -42,7 +42,7 @@ func (s *SystemService) GetSystemInfo() models.SystemInfo {
 			}
 		}
 	} else {
-		log.Printf("Erreur lecture os-release: %v", err)
+		log.Printf("Error reading os-release: %v", err)
 	}
 	if osName == "" {
 		osName = "Unraid OS"
@@ -60,7 +60,7 @@ func (s *SystemService) GetSystemInfo() models.SystemInfo {
 			}
 		}
 	} else {
-		log.Printf("Erreur lecture cpuinfo: %v", err)
+		log.Printf("Error reading cpuinfo: %v", err)
 	}
 
 	return models.SystemInfo{

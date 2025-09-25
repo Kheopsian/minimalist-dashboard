@@ -11,19 +11,19 @@ import (
 	"minimalist-dashboard/internal/models"
 )
 
-// StreamingService gère les informations de streaming (Plex)
+// StreamingService manages streaming information (Plex)
 type StreamingService struct {
 	config *config.Config
 }
 
-// NewStreamingService crée une nouvelle instance du service streaming
+// NewStreamingService creates a new streaming service instance
 func NewStreamingService(cfg *config.Config) *StreamingService {
 	return &StreamingService{config: cfg}
 }
 
-// GetStreamingInfo récupère les informations sur les services de streaming
+// GetStreamingInfo retrieves streaming services information
 func (s *StreamingService) GetStreamingInfo() models.StreamingInfo {
-	// -- Partie 1 : Compter les fichiers --
+	// -- Part 1: Count files --
 	countItemsInDir := func(path string) int {
 		if path == "" {
 			return 0
@@ -38,32 +38,32 @@ func (s *StreamingService) GetStreamingInfo() models.StreamingInfo {
 	series := countItemsInDir(s.config.PathSeries)
 	animes := countItemsInDir(s.config.PathAnimes)
 
-	// -- Partie 2 : Interroger l'API Plex --
+	// -- Part 2: Query Plex API --
 	playing := 0
 	transcoding := 0
 
-	// Si l'URL ou le Token ne sont pas définis, on saute cette partie
+	// If URL or Token are not defined, skip this part
 	if s.config.PlexURL != "" && s.config.PlexToken != "" {
-		// On crée un client HTTP avec un timeout de 2 secondes
+		// Create an HTTP client with a 2-second timeout
 		client := &http.Client{Timeout: 2 * time.Second}
 
-		// On prépare la requête GET vers l'endpoint /status/sessions
+		// Prepare GET request to the /status/sessions endpoint
 		req, err := http.NewRequest("GET", s.config.PlexURL+"/status/sessions", nil)
 		if err == nil {
-			// On ajoute les en-têtes nécessaires pour l'authentification et le format
+			// Add necessary headers for authentication and format
 			req.Header.Add("Accept", "application/json")
 			req.Header.Add("X-Plex-Token", s.config.PlexToken)
 
-			// On exécute la requête
+			// Execute the request
 			resp, err := client.Do(req)
 			if err == nil {
 				defer resp.Body.Close()
 
-				// On décode la réponse JSON dans nos structs
+				// Decode JSON response into our structs
 				var sessionResponse models.PlexSessionResponse
 				err = json.NewDecoder(resp.Body).Decode(&sessionResponse)
 				if err == nil {
-					// On a réussi ! On met à jour nos compteurs.
+					// Success! Update our counters.
 					playing = sessionResponse.MediaContainer.Size
 					for _, media := range sessionResponse.MediaContainer.Metadata {
 						if len(media.TranscodeSession) > 0 {
@@ -74,7 +74,7 @@ func (s *StreamingService) GetStreamingInfo() models.StreamingInfo {
 			}
 		}
 		if err != nil {
-			log.Printf("Erreur lors de l'appel à l'API Plex: %v", err)
+			log.Printf("Error calling Plex API: %v", err)
 		}
 	}
 

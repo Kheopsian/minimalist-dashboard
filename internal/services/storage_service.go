@@ -11,17 +11,17 @@ import (
 	"minimalist-dashboard/internal/utils"
 )
 
-// StorageService gère les informations de stockage et réseau
+// StorageService manages storage and network information
 type StorageService struct {
 	config *config.Config
 }
 
-// NewStorageService crée une nouvelle instance du service de stockage
+// NewStorageService creates a new storage service instance
 func NewStorageService(cfg *config.Config) *StorageService {
 	return &StorageService{config: cfg}
 }
 
-// GetDiskInfo récupère les informations sur le disque
+// GetDiskInfo retrieves disk information
 func (s *StorageService) GetDiskInfo() (models.DiskInfo, error) {
 	monitorPath := s.config.GetMonitorPath()
 
@@ -46,7 +46,7 @@ func (s *StorageService) GetDiskInfo() (models.DiskInfo, error) {
 	totalK, _ := strconv.ParseFloat(fields[1], 64)
 	usedK, _ := strconv.ParseFloat(fields[2], 64)
 
-	// Convertir de Kio à Tio (1024*1024*1024)
+	// Convert from KiB to TiB (1024*1024*1024)
 	kibToTb := 1024.0 * 1024.0 * 1024.0
 
 	return models.DiskInfo{
@@ -59,7 +59,7 @@ func (s *StorageService) GetDiskInfo() (models.DiskInfo, error) {
 	}, nil
 }
 
-// GetNetCounters récupère les compteurs réseau bruts
+// GetNetCounters retrieves raw network counters
 func (s *StorageService) GetNetCounters(interfaceName string) (models.NetCounters, error) {
 	content, err := os.ReadFile("/proc/net/dev")
 	if err != nil {
@@ -80,5 +80,5 @@ func (s *StorageService) GetNetCounters(interfaceName string) (models.NetCounter
 			return models.NetCounters{RxBytes: rx, TxBytes: tx}, nil
 		}
 	}
-	return models.NetCounters{}, fmt.Errorf("interface %s non trouvée dans /proc/net/dev", interfaceName)
+	return models.NetCounters{}, fmt.Errorf("interface %s not found in /proc/net/dev", interfaceName)
 }

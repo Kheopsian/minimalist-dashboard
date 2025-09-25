@@ -2,7 +2,7 @@ package config
 
 import "os"
 
-// Config contient toute la configuration de l'application
+// Config contains all the application configuration
 type Config struct {
 	WebUIPort     string
 	PathFilms     string
@@ -13,7 +13,7 @@ type Config struct {
 	PlexToken     string
 }
 
-// Load charge la configuration depuis les variables d'environnement
+// Load loads configuration from environment variables
 func Load() *Config {
 	return &Config{
 		WebUIPort:    getEnvOrDefault("WEBUI_PORT", "8080"),
@@ -26,7 +26,7 @@ func Load() *Config {
 	}
 }
 
-// getEnvOrDefault retourne la valeur de la variable d'environnement ou la valeur par défaut
+// getEnvOrDefault returns the environment variable value or the default value
 func getEnvOrDefault(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -34,7 +34,7 @@ func getEnvOrDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-// GetMonitorPath retourne le chemin à surveiller pour le disque (PATH_FILMS ou racine)
+// GetMonitorPath returns the path to monitor for disk usage (PATH_FILMS or root)
 func (c *Config) GetMonitorPath() string {
 	if c.PathFilms != "" {
 		return c.PathFilms

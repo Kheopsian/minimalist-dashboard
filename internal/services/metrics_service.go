@@ -9,7 +9,7 @@ import (
 	"minimalist-dashboard/internal/utils"
 )
 
-// MetricsService orchestre tous les services pour collecter les métriques
+// MetricsService orchestrates all services to collect metrics
 type MetricsService struct {
 	config          *config.Config
 	systemService   *SystemService
@@ -20,7 +20,7 @@ type MetricsService struct {
 	streamingService *StreamingService
 }
 
-// NewMetricsService crée une nouvelle instance du service de métriques
+// NewMetricsService creates a new metrics service instance
 func NewMetricsService(cfg *config.Config) *MetricsService {
 	return &MetricsService{
 		config:           cfg,
@@ -33,7 +33,7 @@ func NewMetricsService(cfg *config.Config) *MetricsService {
 	}
 }
 
-// CollectAllMetrics collecte toutes les métriques système
+// CollectAllMetrics collects all system metrics
 func (m *MetricsService) CollectAllMetrics() models.GlobalMetrics {
 	diskInfo, _ := m.storageService.GetDiskInfo()
 
@@ -49,12 +49,12 @@ func (m *MetricsService) CollectAllMetrics() models.GlobalMetrics {
 	return metrics
 }
 
-// CollectRealTimeMetrics collecte les métriques en temps réel (CPU et réseau)
+// CollectRealTimeMetrics collects real-time metrics (CPU and network)
 func (m *MetricsService) CollectRealTimeMetrics(prevCPUTimes models.CPUTimes, prevNetCounters models.NetCounters, prevTime time.Time) (models.GlobalMetrics, models.CPUTimes, models.NetCounters, time.Time) {
 	currentTime := time.Now()
 	elapsedSeconds := currentTime.Sub(prevTime).Seconds()
 
-	// Calcul CPU
+	// CPU calculation
 	currentCPUTimes, _ := m.cpuService.GetCPUTimes()
 	deltaIdle := currentCPUTimes.Idle - prevCPUTimes.Idle
 	deltaTotal := currentCPUTimes.Total - prevCPUTimes.Total
@@ -64,10 +64,10 @@ func (m *MetricsService) CollectRealTimeMetrics(prevCPUTimes models.CPUTimes, pr
 	}
 	tempStr, tempDeg := m.cpuService.GetCPUTemp()
 
-	// Collecte des métriques de base
+	// Collect base metrics
 	metrics := m.CollectAllMetrics()
 
-	// Calcul réseau
+	// Network calculation
 	currentNetCounters, err := m.storageService.GetNetCounters(m.config.NetInterface)
 	if err == nil {
 		deltaRx := currentNetCounters.RxBytes - prevNetCounters.RxBytes

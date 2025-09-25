@@ -17,13 +17,13 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// WebSocketHandler gère les connexions WebSocket
+// WebSocketHandler handles WebSocket connections
 type WebSocketHandler struct {
 	config         *config.Config
 	metricsService *services.MetricsService
 }
 
-// NewWebSocketHandler crée une nouvelle instance du handler WebSocket
+// NewWebSocketHandler creates a new WebSocket handler instance
 func NewWebSocketHandler(cfg *config.Config, metricsService *services.MetricsService) *WebSocketHandler {
 	return &WebSocketHandler{
 		config:         cfg,
@@ -31,16 +31,16 @@ func NewWebSocketHandler(cfg *config.Config, metricsService *services.MetricsSer
 	}
 }
 
-// HandleConnections gère les connexions WebSocket entrantes
+// HandleConnections handles incoming WebSocket connections
 func (h *WebSocketHandler) HandleConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ws.Close()
-	fmt.Println("Nouveau client connecté au WebSocket")
+	fmt.Println("New client connected to WebSocket")
 
-	// Initialisation des variables pour le calcul des deltas
+	// Initialize variables for delta calculations
 	cpuService := services.NewCPUService()
 	storageService := services.NewStorageService(h.config)
 	
@@ -53,23 +53,23 @@ func (h *WebSocketHandler) HandleConnections(w http.ResponseWriter, r *http.Requ
 	for {
 		time.Sleep(2 * time.Second)
 
-		// Collecte des métriques en temps réel
+		// Collect real-time metrics
 		metrics, newCPUTimes, newNetCounters, newTime := h.metricsService.CollectRealTimeMetrics(
 			prevCPUTimes,
 			prevNetCounters,
 			prevTime,
 		)
 
-		// Mise à jour des variables pour la prochaine itération
+		// Update variables for next iteration
 		prevCPUTimes = newCPUTimes
 		prevNetCounters = newNetCounters
 		prevTime = newTime
 
-		// Envoi des données au client
+		// Send data to client
 		jsonMessage, _ := json.Marshal(metrics)
 		err = ws.WriteMessage(websocket.TextMessage, jsonMessage)
 		if err != nil {
-			log.Printf("Erreur d'envoi: %v", err)
+			log.Printf("Send error: %v", err)
 			break
 		}
 	}
