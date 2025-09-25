@@ -4,11 +4,131 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Orion Dashboard</title>
-    <link rel="stylesheet" href="assets/css/fonts.css" />
-    <link rel="stylesheet" href="assets/css/all.min.css" />
-    <link rel="stylesheet" href="style.css" />
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
-    <script src="assets/js/chart.umd.js"></script>
+    
+    <!-- Critical CSS inlined for above-the-fold content -->
+    <style>
+      :root {
+        --primary-text-color: #1a1a1a;
+        --secondary-text-color: #666;
+        --background-color: #f7f7f7;
+        --border-color: #e0e0e0;
+        --accent-color: #007bff;
+        --card-background-color: #fff;
+        --font-family-main: "Inter", sans-serif;
+        --font-family-mono: "Roboto Mono", monospace;
+        --spacing-unit: 1rem;
+      }
+      
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: var(--font-family-main);
+        color: var(--primary-text-color);
+        background-color: var(--background-color);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-unit) calc(var(--spacing-unit) * 4);
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--card-background-color);
+      }
+      
+      .logo {
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+      
+      .nav {
+        display: flex;
+        gap: calc(var(--spacing-unit) * 2);
+      }
+      
+      .nav-item {
+        text-decoration: none;
+        color: var(--primary-text-color);
+        font-weight: 400;
+        text-transform: uppercase;
+        transition: color 0.3s ease;
+      }
+      
+      .nav-item:hover {
+        color: var(--accent-color);
+      }
+      
+      #theme-switcher {
+        cursor: pointer;
+      }
+      
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: calc(var(--spacing-unit) * 4);
+      }
+      
+      .hero {
+        margin-bottom: calc(var(--spacing-unit) * 4);
+        padding-bottom: calc(var(--spacing-unit) * 2);
+        border-bottom: 1px solid var(--border-color);
+      }
+      
+      .hero h1 {
+        font-size: 5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: var(--spacing-unit);
+      }
+      
+      .hero .dot {
+        color: var(--accent-color);
+      }
+      
+      .subtitle {
+        font-size: 1.5rem;
+        color: var(--secondary-text-color);
+        margin-top: var(--spacing-unit);
+      }
+      
+      /* Fallbacks for icons before FA loading */
+      .fas, .fab {
+        display: inline-block;
+        width: 20px;
+        text-align: center;
+      }
+      
+      /* Critical dark mode styles */
+      body.dark-mode {
+        --primary-text-color: #e0e0e0;
+        --secondary-text-color: #999;
+        --background-color: #121212;
+        --border-color: #333;
+        --accent-color: #0099ff;
+        --card-background-color: #1e1e1e;
+      }
+    </style>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/inter-700.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Asynchronous loading of non-critical CSS -->
+    <link rel="preload" href="assets/css/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="assets/css/fonts.css"></noscript>
+    
+    <link rel="preload" href="assets/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="assets/css/all.min.css"></noscript>
+    
+    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
   </head>
   <body>
     <header class="header">
@@ -237,7 +357,15 @@
         </div>
       </section>
     </main>
-    <script src="assets/js/dashboard.js"></script>
-    <script src="assets/js/theme-switcher.js"></script>
+    <!-- Scripts loaded asynchronously/deferred -->
+    <script src="assets/js/theme-switcher.js" defer></script>
+    <script src="assets/js/chart.umd.js" defer></script>
+    <script src="assets/js/dashboard.js" defer></script>
+    
+    <!-- Optimization script for asynchronous CSS loading -->
+    <script>
+      // Polyfill for older browsers that don't support rel="preload"
+      !function(e){"use strict";var t=function(t,n,r){function o(e){return i.body?e():void setTimeout(function(){o(e)})}function a(){d.addEventListener&&d.removeEventListener("load",a),d.media=r||"all"}var i=e.document,d=i.createElement("link");if(n)d.href=n;else{if(!t)return;d.href=t.href,d.media=t.media}d.rel="stylesheet",d.addEventListener&&d.addEventListener("load",a),(d.onloadcssdefined=o)(a),i.head.appendChild(d)};e.loadCSS?e.loadCSS:e.loadCSS=t,"undefined"!=typeof module&&(module.exports=t)}(this);
+    </script>
   </body>
 </html>
