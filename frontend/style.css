@@ -241,3 +241,11 @@ body.dark-mode .pool-status.online {
 body.dark-mode #docker-card .fab.fa-docker {
     color: #2496ed;
 }
+
+body.dark-mode a {
+    color: var(--accent-color);
+}
+
+body.dark-mode .nav-item:hover {
+    color: #ffffff;
+}

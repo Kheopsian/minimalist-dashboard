@@ -13,10 +13,10 @@
 </head>
 <body>
     <header class="header">
-        <div class="logo">SERVER / STATUS</div>
+        <div class="logo"><a href="/" style="text-decoration: none; color: inherit;">SERVER / STATUS</a></div>
         <nav class="nav">
-            <a href="#" class="nav-item">CONTACT</a>
-            <a href="#" class="nav-item">ABOUT</a>
+            <a href="contact.html" class="nav-item">CONTACT</a>
+            <a href="about.html" class="nav-item">ABOUT</a>
             <div id="theme-switcher" class="nav-item">
                 <i class="fas fa-moon"></i>
             </div>
@@ -261,13 +261,8 @@
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
-    socket.onopen = function(event) {
-        console.log('Connexion WebSocket établie !');
-    };
-
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log('Données reçues:', data);
 
         function updateTextContent(selector, value) {
             const element = document.querySelector(selector);
