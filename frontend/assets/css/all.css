@@ -1,0 +1,148 @@
+/*!
+ * Font Awesome Free 6.0.0-beta3 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ * Copyright 2021 Fonticons, Inc.
+ * OPTIMIZED VERSION - Contains only used icons
+ */
+
+/* Base Font Awesome styles */
+.fa {
+  font-family: var(--fa-style-family, "Font Awesome 6 Free");
+  font-weight: var(--fa-style, 900);
+}
+
+.fa,
+.fa-brands,
+.fa-solid,
+.fab,
+.fas {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-rendering: auto;
+}
+
+/* Font declarations */
+:host,
+:root {
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Brands";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src:
+    url(../webfonts/fa-brands-400.woff2) format("woff2"),
+    url(../webfonts/fa-brands-400.ttf) format("truetype");
+}
+
+.fa-brands,
+.fab {
+  font-family: "Font Awesome 6 Brands";
+  font-weight: 400;
+}
+
+:host,
+:root {
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src:
+    url(../webfonts/fa-solid-900.woff2) format("woff2"),
+    url(../webfonts/fa-solid-900.ttf) format("truetype");
+}
+
+.fa-solid,
+.fas {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}
+
+/* Specific icons used in the application */
+
+/* fas fa-arrow-down */
+.fa-arrow-down:before {
+  content: "\f063";
+}
+
+/* fas fa-arrow-up */
+.fa-arrow-up:before {
+  content: "\f062";
+}
+
+/* fas fa-bolt */
+.fa-bolt:before,
+.fa-zap:before {
+  content: "\f0e7";
+}
+
+/* fas fa-check-circle */
+.fa-check-circle:before,
+.fa-circle-check:before {
+  content: "\f058";
+}
+
+/* fas fa-cogs */
+.fa-cogs:before,
+.fa-gears:before {
+  content: "\f085";
+}
+
+/* fas fa-database */
+.fa-database:before {
+  content: "\f1c0";
+}
+
+/* fab fa-docker */
+/* fas fa-sun */
+.fa-sun:before {
+  content: "\f185";
+}
+.fa-docker:before {
+  content: "\f395";
+}
+
+/* fas fa-hdd */
+.fa-hard-drive:before,
+.fa-hdd:before {
+  content: "\f0a0";
+}
+
+/* fas fa-layer-group */
+.fa-layer-group:before {
+  content: "\f5fd";
+}
+
+/* fas fa-microchip */
+.fa-microchip:before {
+  content: "\f2db";
+}
+
+/* fas fa-moon */
+.fa-moon:before {
+  content: "\f186";
+}
+
+/* fas fa-play-circle */
+.fa-circle-play:before,
+.fa-play-circle:before {
+  content: "\f144";
+}
+
+/* fas fa-thermometer-half */
+.fa-temperature-2:before,
+.fa-temperature-half:before,
+.fa-thermometer-2:before,
+.fa-thermometer-half:before {
+  content: "\f2c9";
+}
