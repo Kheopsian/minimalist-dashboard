@@ -23,7 +23,34 @@ body { font-family: var(--font-family-main); color: var(--primary-text-color); b
 .hero h1 { font-size: 5rem; font-weight: 700; line-height: 1; margin-bottom: var(--spacing-unit); }
 .hero .dot { color: var(--accent-color); }
 .subtitle { font-size: 1.5rem; color: var(--secondary-text-color); margin-top: var(--spacing-unit); }
-
+.about-content p {
+        margin-bottom: 1rem;
+        color: var(--primary-text-color);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    .about-content h4 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-text-color);
+    }
+    .about-content ul {
+        list-style-position: inside;
+        padding-left: 0;
+        margin-bottom: 1rem;
+    }
+    .about-content li {
+        margin-bottom: 0.5rem;
+        font-family: var(--font-family-mono);
+    }
+    .about-content strong {
+        font-family: var(--font-family-main); /* Force la police principale (Inter) */
+        font-weight: 700;                      /* Applique le gras */
+        color: var(--primary-text-color);
+        margin-right: 8px;                     /* Ajoute un petit espace à droite */
+    }
 /* --- GRILLE PRINCIPALE --- */
 .metrics-grid { 
     display: grid; 
