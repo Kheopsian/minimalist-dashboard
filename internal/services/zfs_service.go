@@ -93,7 +93,7 @@ func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 
 // GetARCCacheInfo retrieves ARC cache information
 func (z *ZFSService) GetARCCacheInfo() models.ARCCache {
-	content, err := os.ReadFile("/proc/spl/kstat/zfs/arcstats")
+	content, err := os.ReadFile("/app/arcstats")
 	if err != nil {
 		log.Printf("Error getARCCacheInfo: unable to read /proc/spl/kstat/zfs/arcstats: %v", err)
 		return models.ARCCache{}
