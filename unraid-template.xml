@@ -3,7 +3,7 @@
   <Name>minimalist-dashboard</Name>
   <Repository>ghcr.io/kheopsian/minimalist-dashboard:main</Repository>
   <Registry>https://github.com/Kheopsian/minimalist-dashboard/pkgs/container/minimalist-dashboard</Registry>
-  <Network>bridge</Network>
+  <Network>host</Network>
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
@@ -22,14 +22,7 @@
   <DonateLink/>
   <Description>A lightweight, real-time server monitoring dashboard built with Go and vanilla JavaScript. Provides a clean web interface to display live system metrics with real-time updates via WebSockets.</Description>
   <Networking>
-    <Mode>bridge</Mode>
-    <Publish>
-      <Port>
-        <HostPort>9254</HostPort>
-        <ContainerPort>9254</ContainerPort>
-        <Protocol>tcp</Protocol>
-      </Port>
-    </Publish>
+    <Mode>host</Mode>
   </Networking>
   <Data>
     <Volume>
@@ -47,11 +40,17 @@
       <ContainerDir>/mnt/media</ContainerDir>
       <Mode>ro</Mode>
     </Volume>
+    <Volume>
+      <HostDir>/proc/spl/kstat/zfs/arcstats</HostDir>
+      <ContainerDir>/app/arcstats</ContainerDir>
+      <Mode>ro</Mode>
+    </Volume>
   </Data>
   <Environment/>
   <Labels/>
   <Config Name="WebUI Port" Target="9254" Default="9254" Mode="tcp" Description="WebUI Port" Type="Port" Display="always" Required="true" Mask="false">9254</Config>
   <Config Name="Appdata Directory" Target="/app/data" Default="/mnt/user/appdata/minimalist-dashboard/" Mode="ro" Description="Path to your application data directory containing config.json and optionally zpool_status.txt." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/minimalist-dashboard/</Config>
   <Config Name="Docker Socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="ro" Description="Docker socket for container monitoring" Type="Path" Display="always" Required="true" Mask="false">/var/run/docker.sock</Config>
+  <Config Name="ZFS ARC Stats" Target="/app/arcstats" Default="/proc/spl/kstat/zfs/arcstats" Mode="ro" Description="ZFS ARC Stats (Optional, only if using ZFS pools on Unraid)" Type="Path" Display="always" Required="false" Mask="false">/proc/spl/kstat/zfs/arcstats</Config>
   <Config Name="Media Folder" Target="/mnt/media" Default="/mnt/user/media/" Mode="ro" Description="Path to your main media directory (optional if you don't monitor media)" Type="Path" Display="always" Required="false" Mask="false">/mnt/user/media/</Config>
 </Container>

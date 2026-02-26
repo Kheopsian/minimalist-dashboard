@@ -122,14 +122,29 @@ socket.onmessage = function (event) {
     ".cache-details .cache-stat:nth-child(2) .stat-value",
     data.arcCache.arcMaxSize,
   );
-  updateTextContent(
-    ".cache-details .cache-stat:nth-child(4) .stat-value",
-    data.arcCache.l2arcSize,
-  );
-  updateTextContent(
-    ".cache-details .cache-stat:nth-child(5) .stat-value",
-    data.arcCache.l2arcHitRate,
-  );
+  const hasL2ARC = parseFloat(data.arcCache.l2arcSize) > 0;
+  
+  const separator = document.getElementById("l2arc-separator");
+  const sizeStat = document.getElementById("l2arc-size-stat");
+  const hitStat = document.getElementById("l2arc-hit-stat");
+  
+  if (separator && sizeStat && hitStat) {
+    const displayStyle = hasL2ARC ? "" : "none";
+    separator.style.display = displayStyle;
+    sizeStat.style.display = displayStyle;
+    hitStat.style.display = displayStyle;
+    
+    if (hasL2ARC) {
+      updateTextContent(
+        "#l2arc-size-stat .stat-value",
+        data.arcCache.l2arcSize,
+      );
+      updateTextContent(
+        "#l2arc-hit-stat .stat-value",
+        data.arcCache.l2arcHitRate,
+      );
+    }
+  }
 
   updateTextContent(
     ".sysinfo-list li:nth-child(1) span:last-child",
@@ -156,9 +171,8 @@ socket.onmessage = function (event) {
     const dataVdevTree = document.querySelector(
       "#zfs-card .zfs-column:nth-child(1) .zfs-tree",
     );
-    const cacheVdevTree = document.querySelector(
-      "#zfs-card .zfs-column:nth-child(2) .zfs-tree",
-    );
+    const cacheVdevTreeColumn = document.getElementById("zfs-cache-column");
+    const cacheVdevTree = document.querySelector("#zfs-cache-column .zfs-tree");
 
     if (dataVdevTree && cacheVdevTree) {
       dataVdevTree.innerHTML = "";
@@ -176,6 +190,7 @@ socket.onmessage = function (event) {
       });
 
       if (data.zfsConfig.cacheVdev) {
+        cacheVdevTreeColumn.style.display = "";
         const vdev = data.zfsConfig.cacheVdev;
         const vdevLi = document.createElement("li");
         let devicesHtml = "<ul>";
@@ -185,6 +200,8 @@ socket.onmessage = function (event) {
         devicesHtml += "</ul>";
         vdevLi.innerHTML = `<i class="fas fa-bolt"></i> ${vdev.name} <span class="device-status">${vdev.status}</span>${devicesHtml}`;
         cacheVdevTree.appendChild(vdevLi);
+      } else {
+        cacheVdevTreeColumn.style.display = "none";
       }
     }
   }

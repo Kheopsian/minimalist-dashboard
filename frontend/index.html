@@ -298,7 +298,7 @@
                 </li>
               </ul>
             </div>
-            <div class="zfs-column">
+            <div class="zfs-column" id="zfs-cache-column">
               <span class="column-title">Cache VDEV</span>
               <ul class="zfs-tree">
                 <li>
@@ -339,12 +339,12 @@
                 <span>ARC Max Size</span>
                 <span class="stat-value">- GB</span>
               </div>
-              <hr />
-              <div class="cache-stat">
+              <hr id="l2arc-separator" />
+              <div class="cache-stat" id="l2arc-size-stat">
                 <span>L2ARC Size (NVMe)</span>
                 <span class="stat-value">- GB</span>
               </div>
-              <div class="cache-stat">
+              <div class="cache-stat" id="l2arc-hit-stat">
                 <span>L2ARC Hit Rate</span>
                 <span class="stat-value">- %</span>
               </div>

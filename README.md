@@ -74,7 +74,7 @@
 
 ```bash
 # Pull and run the latest image (Mount your appdata directory)
-docker run -p 9254:9254 -v /path/to/your/appdata:/app/data ghcr.io/Kheopsian/minimalist-dashboard:main
+docker run --network host -v /path/to/your/appdata:/app/data ghcr.io/Kheopsian/minimalist-dashboard:main
 ```
 
 #### Building from Source
@@ -86,7 +86,7 @@ cd minimalist-dashboard
 
 # Build and run with Docker
 docker build -t minimalist-dashboard .
-docker run -p 9254:9254 -v $(pwd):/app/data minimalist-dashboard
+docker run --network host -v $(pwd):/app/data minimalist-dashboard
 ```
 
 Access the dashboard at [http://localhost:9254](http://localhost:9254)
@@ -126,10 +126,11 @@ Configure the application using a `config.json` file. You can find a template in
 Make sure to map the path to your data directory containing `config.json` and optionally `zpool_status.txt` when running the container.
 
 ```bash
-docker run -p 9254:9254 \
+docker run --network host \
   -v /path/to/your/appdata:/app/data:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -v /mnt/media:/mnt/media:ro \
+  -v /proc/spl/kstat/zfs/arcstats:/app/arcstats:ro \
   ghcr.io/Kheopsian/minimalist-dashboard:main
 ```
 
@@ -140,12 +141,12 @@ version: '3.8'
 services:
   dashboard:
     image: ghcr.io/Kheopsian/minimalist-dashboard:main
-    ports:
-      - "9254:9254"
+    network_mode: host
     volumes:
       - /path/to/your/appdata:/app/data:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/media:/mnt/media:ro
+      - /proc/spl/kstat/zfs/arcstats:/app/arcstats:ro
 ```
 
 ### Unraid Installation
