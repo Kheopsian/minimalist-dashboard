@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"minimalist-dashboard/internal/config"
 	"minimalist-dashboard/internal/handlers"
@@ -12,7 +13,12 @@ import (
 
 func main() {
 	// Load configuration
-	cfg, err := config.LoadFromFile("config.json")
+	configPath := "data/config.json"
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		configPath = "config.json"
+	}
+
+	cfg, err := config.LoadFromFile(configPath)
 	if err != nil {
 		log.Fatalf("Error loading config: %v\nPlease copy config.example.json to config.json and adjust it.", err)
 	}

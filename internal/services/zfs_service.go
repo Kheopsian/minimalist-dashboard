@@ -20,9 +20,14 @@ func NewZFSService() *ZFSService {
 
 // GetZFSConfig retrieves ZFS configuration
 func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
-	content, err := os.ReadFile("/app/zpool_status.txt")
+	statusPath := "data/zpool_status.txt"
+	if _, err := os.Stat(statusPath); os.IsNotExist(err) {
+		statusPath = "/app/zpool_status.txt"
+	}
+
+	content, err := os.ReadFile(statusPath)
 	if err != nil {
-		log.Printf("Error getZFSConfig: unable to read /app/zpool_status.txt: %v", err)
+		log.Printf("Error getZFSConfig: unable to read %s: %v", statusPath, err)
 		return models.ZFSConfig{}
 	}
 

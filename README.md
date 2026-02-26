@@ -73,8 +73,8 @@
 #### Using Pre-built Image (GitHub Container Registry)
 
 ```bash
-# Pull and run the latest image (Don't forget to mount your config.json)
-docker run -p 9254:9254 -v /path/to/your/config.json:/app/config.json ghcr.io/Kheopsian/minimalist-dashboard:main
+# Pull and run the latest image (Mount your appdata directory)
+docker run -p 9254:9254 -v /path/to/your/appdata:/app/data ghcr.io/Kheopsian/minimalist-dashboard:main
 ```
 
 #### Building from Source
@@ -86,7 +86,7 @@ cd minimalist-dashboard
 
 # Build and run with Docker
 docker build -t minimalist-dashboard .
-docker run -p 9254:9254 -v $(pwd)/config.json:/app/config.json minimalist-dashboard
+docker run -p 9254:9254 -v $(pwd):/app/data minimalist-dashboard
 ```
 
 Access the dashboard at [http://localhost:9254](http://localhost:9254)
@@ -123,11 +123,11 @@ Configure the application using a `config.json` file. You can find a template in
 
 ### Example Docker Configuration
 
-Make sure to map the path to your `config.json` when running the container.
+Make sure to map the path to your data directory containing `config.json` and optionally `zpool_status.txt` when running the container.
 
 ```bash
 docker run -p 9254:9254 \
-  -v /path/to/your/config.json:/app/config.json:ro \
+  -v /path/to/your/appdata:/app/data:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -v /mnt/media:/mnt/media:ro \
   ghcr.io/Kheopsian/minimalist-dashboard:main
@@ -143,7 +143,7 @@ services:
     ports:
       - "9254:9254"
     volumes:
-      - /path/to/your/config.json:/app/config.json:ro
+      - /path/to/your/appdata:/app/data:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/media:/mnt/media:ro
 ```
@@ -154,7 +154,7 @@ For Unraid users, an XML template is provided for a seamless setup:
 1. Copy the `unraid-template.xml` file into your Unraid flash drive under `config/plugins/dockerMan/templates-user/`.
 2. Go to your Unraid **Docker** tab.
 3. Click **Add Container** and select `minimalist-dashboard` from the dropdown list of *User Templates*.
-4. Ensure you place your `config.json` (based on `config.example.json`) in the `/mnt/user/appdata/minimalist-dashboard/` folder before starting the container.
+4. Ensure you place your `config.json` (based on `config.example.json`) in the `/mnt/user/appdata/minimalist-dashboard/` folder before starting the container. The template will automatically map this entire directory.
 
 #### ZFS Monitoring on Unraid (Important)
 
