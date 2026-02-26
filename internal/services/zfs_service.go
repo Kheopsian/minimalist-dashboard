@@ -5,9 +5,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
-
-	"minimalist-dashboard/internal/models"
 )
 
 // ZFSService manages ZFS information
@@ -16,6 +13,30 @@ type ZFSService struct{}
 // NewZFSService creates a new ZFS service instance
 func NewZFSService() *ZFSService {
 	return &ZFSService{}
+}
+	models := make(map[string]string)
+	path := "data/disk_models.txt"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		path = "/app/disk_models.txt"
+	}
+	content, err := os.ReadFile(path)
+	if err != nil {
+		return models
+	}
+	for _, line := range strings.Split(string(content), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) >= 2 {
+			kname := fields[0]
+			model := strings.Join(fields[1:], " ")
+			models[kname] = strings.TrimSpace(model)
+		}
+	}
+	return models
+}
+
+// NewZFSService creates a new ZFS service instance
+func NewZFSService(cfg *config.Config) *ZFSService {
+	return &ZFSService{config: cfg}
 }
 
 // GetZFSConfig retrieves ZFS configuration
@@ -36,6 +57,8 @@ func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 	config := models.ZFSConfig{}
 	var dataVdevs []models.ZPoolVdev
 	var cacheVdev *models.ZPoolVdev
+	
+	diskModels := loadDiskModels()
 
 	for _, line := range strings.Split(out, "\n") {
 		fields := strings.Fields(line)
@@ -86,7 +109,24 @@ func (z *ZFSService) GetZFSConfig() models.ZFSConfig {
 			cacheVdev = &models.ZPoolVdev{Name: deviceName, Status: deviceStatus}
 			lastVdev = cacheVdev
 		} else if lastVdev != nil {
-			lastVdev.Devices = append(lastVdev.Devices, deviceName)
+			displayName := deviceName
+			kname := strings.TrimPrefix(deviceName, "/dev/")
+			
+			// Detect matching lsblk model via longest prefix mapping
+			bestMatch := ""
+			bestMatchLen := 0
+			for key, model := range diskModels {
+				if strings.HasPrefix(kname, key) && len(key) > bestMatchLen {
+					bestMatch = model
+					bestMatchLen = len(key)
+				}
+			}
+			if bestMatch != "" {
+				// Example: "Seagate Exos (sdb1)"
+				displayName = fmt.Sprintf("%s (%s)", bestMatch, kname)
+			}
+
+			lastVdev.Devices = append(lastVdev.Devices, displayName)
 		}
 	}
 

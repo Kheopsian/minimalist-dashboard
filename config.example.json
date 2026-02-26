@@ -5,5 +5,9 @@
   "PathAnimes": "/path/to/animes",
   "NetInterface": "eth0",
   "PlexURL": "http://localhost:32400",
-  "PlexToken": "your-plex-token-here"
+  "PlexToken": "your-plex-token-here",
+  "ZpoolDiskAliases": {
+    "ata-WDC_WD100EFAX-68LHPN0_7SGLX12C": "Western Digital 10TB",
+    "scsi-35000c500b52be35r": "SAS Seagate Exos 18TB"
+  }
 }

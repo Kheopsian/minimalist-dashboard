@@ -117,9 +117,18 @@ Configure the application using a `config.json` file. You can find a template in
   "PathAnimes": "/path/to/animes",
   "NetInterface": "eth0",
   "PlexURL": "http://localhost:32400",
-  "PlexToken": "your-plex-token-here"
+  "PlexToken": "your-plex-token-here",
+  "ZpoolDiskAliases": {
+    "ata-WDC_WD100EFAX-68LHPN0_7SGLX12C": "Western Digital 10TB",
+    "/dev/sdb1": "SSD Cache Samsung 1TB",
+    "scsi-35000c500b52be35r": "SAS Seagate Exos 18TB"
+  }
 }
 ```
+
+The dashboard allows you to define "pretty names" for your hard drives in the ZFS interface using the `ZpoolDiskAliases` block. This is completely optional, as **the Unraid script automatically injects your real drive models (e.g., Samsung SSD, Seagate Exos...) via `lsblk` directly into the Dashboard!**
+
+If you want to manually override a name, add its identifier to `ZpoolDiskAliases`.
 
 ### Example Docker Configuration
 
@@ -169,20 +178,24 @@ Due to container limitations, the dashboard needs to read ZFS status from a file
 
 # Configuration du dossier de destination
 OUTPUT_DIR="/mnt/user/appdata/minimalist-dashboard"
-OUTPUT_FILE="$OUTPUT_DIR/zpool_status.txt"
+ZPOOL_FILE="$OUTPUT_DIR/zpool_status.txt"
+MODELS_FILE="$OUTPUT_DIR/disk_models.txt"
 
 # Création du dossier si inexistant
 mkdir -p "$OUTPUT_DIR"
 
-# Génération du statut ZFS (Ajustez 'datapool' avec votre nom de pool ZFS)
-if /sbin/zpool status datapool > "$OUTPUT_FILE"; then
+# Génération du statut ZFS (Ajustez 'datapool' à votre nom de pool ZFS)
+if zpool status datapool > "$ZPOOL_FILE"; then
     echo "Statut ZFS mis à jour : $(date)"
 else
     echo "Erreur lors de la mise à jour du statut ZFS"
 fi
 
+# Exportation automatique des jolis noms de disques (Samsung, Seagate...)
+lsblk -dn -o KNAME,MODEL > "$MODELS_FILE"
+
 # Ajustement des permissions
-chmod 644 "$OUTPUT_FILE"
+chmod 644 "$ZPOOL_FILE" "$MODELS_FILE"
 ```
 
 ## 🏗 Architecture
