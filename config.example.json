@@ -1,0 +1,9 @@
+{
+  "WebUIPort": "9254",
+  "PathFilms": "/path/to/films",
+  "PathSeries": "/path/to/series",
+  "PathAnimes": "/path/to/animes",
+  "NetInterface": "eth0",
+  "PlexURL": "http://localhost:32400",
+  "PlexToken": "your-plex-token-here"
+}

@@ -12,7 +12,10 @@ import (
 
 func main() {
 	// Load configuration
-	cfg := config.Load()
+	cfg, err := config.LoadFromFile("config.json")
+	if err != nil {
+		log.Fatalf("Error loading config: %v\nPlease copy config.example.json to config.json and adjust it.", err)
+	}
 
 	// Initialize services
 	metricsService := services.NewMetricsService(cfg)

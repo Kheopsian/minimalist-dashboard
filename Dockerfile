@@ -19,8 +19,9 @@ RUN apk --no-cache add ca-certificates docker-cli zfs
 WORKDIR /app
 
 COPY --from=builder /app/frontend ./frontend
+COPY --from=builder /app/config.example.json .
 COPY --from=builder /dashboard-api .
 
-EXPOSE 8080
+EXPOSE 9254
 
 CMD [ "./dashboard-api" ]

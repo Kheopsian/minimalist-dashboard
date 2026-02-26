@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"minimalist-dashboard/internal/config"
@@ -35,7 +36,10 @@ func NewMetricsService(cfg *config.Config) *MetricsService {
 
 // CollectAllMetrics collects all system metrics
 func (m *MetricsService) CollectAllMetrics() models.GlobalMetrics {
-	diskInfo, _ := m.storageService.GetDiskInfo()
+	diskInfo, err := m.storageService.GetDiskInfo()
+	if err != nil {
+		log.Printf("Error getting disk info: %v", err)
+	}
 
 	metrics := models.GlobalMetrics{
 		RAM:       m.cpuService.GetRAMInfo(),
@@ -55,7 +59,10 @@ func (m *MetricsService) CollectRealTimeMetrics(prevCPUTimes models.CPUTimes, pr
 	elapsedSeconds := currentTime.Sub(prevTime).Seconds()
 
 	// CPU calculation
-	currentCPUTimes, _ := m.cpuService.GetCPUTimes()
+	currentCPUTimes, err := m.cpuService.GetCPUTimes()
+	if err != nil {
+		log.Printf("Error getting CPU times: %v", err)
+	}
 	deltaIdle := currentCPUTimes.Idle - prevCPUTimes.Idle
 	deltaTotal := currentCPUTimes.Total - prevCPUTimes.Total
 	cpuUsagePercent := 0.0
@@ -81,6 +88,8 @@ func (m *MetricsService) CollectRealTimeMetrics(prevCPUTimes models.CPUTimes, pr
 			Out: utils.FormatSpeed(txSpeed),
 		}
 		prevNetCounters = currentNetCounters
+	} else {
+		log.Printf("Error getting net counters: %v", err)
 	}
 
 	metrics.CPU = models.CPUInfo{

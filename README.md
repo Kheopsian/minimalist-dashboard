@@ -4,7 +4,7 @@
   
   [![Lighthouse Scores](https://img.shields.io/badge/Lighthouse_(Desktop)-100%25-brightgreen?logo=lighthouse)](https://googlechrome.github.io/lighthouse/viewer/)
   [![Docker Image CI](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/kheopsian/minimalist-dashboard/actions/workflows/docker-publish.yml)
-  [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker)](https://ghcr.io/kheopsian/minimalist-dashboard)
+  [![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue?logo=docker)](https://ghcr.io/Kheopsian/minimalist-dashboard)
   [![Go Version](https://img.shields.io/badge/go-1.25+-blue?logo=go)](https://golang.org/)
   [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
   [![Live Demo](https://img.shields.io/badge/demo-dashboard.kheopsian.com-brightgreen)](https://dashboard.kheopsian.com)
@@ -73,29 +73,29 @@
 #### Using Pre-built Image (GitHub Container Registry)
 
 ```bash
-# Pull and run the latest image
-docker run -p 8080:8080 ghcr.io/kheopsian/minimalist-dashboard:main
+# Pull and run the latest image (Don't forget to mount your config.json)
+docker run -p 9254:9254 -v /path/to/your/config.json:/app/config.json ghcr.io/Kheopsian/minimalist-dashboard:main
 ```
 
 #### Building from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/kheopsian/minimalist-dashboard.git
+git clone https://github.com/Kheopsian/minimalist-dashboard.git
 cd minimalist-dashboard
 
 # Build and run with Docker
 docker build -t minimalist-dashboard .
-docker run -p 8080:8080 minimalist-dashboard
+docker run -p 9254:9254 -v $(pwd)/config.json:/app/config.json minimalist-dashboard
 ```
 
-Access the dashboard at [http://localhost:8080](http://localhost:8080)
+Access the dashboard at [http://localhost:9254](http://localhost:9254)
 
 ### Local Development
 
 ```bash
 # Clone and enter directory
-git clone https://github.com/your-username/minimalist-dashboard.git
+git clone https://github.com/Kheopsian/minimalist-dashboard.git
 cd minimalist-dashboard
 
 # Install dependencies
@@ -107,32 +107,30 @@ go run main.go
 
 ## ⚙️ Configuration
 
-Configure the application using environment variables:
+Configure the application using a `config.json` file. You can find a template in `config.example.json`.
 
-### Core Settings
-- `WEBUI_PORT` - Web interface port (default: `8080`)
-- `NET_INTERFACE` - Network interface to monitor (default: `eth0`)
-
-### Media Library Paths
-- `PATH_FILMS` - Absolute path to movies directory
-- `PATH_SERIES` - Absolute path to TV shows directory  
-- `PATH_ANIMES` - Absolute path to anime directory
-
-### Plex Integration
-- `PLEX_URL` - Plex server URL (e.g., `http://localhost:32400`)
-- `PLEX_TOKEN` - Plex authentication token
+```json
+{
+  "WebUIPort": "9254",
+  "PathFilms": "/path/to/films",
+  "PathSeries": "/path/to/series",
+  "PathAnimes": "/path/to/animes",
+  "NetInterface": "eth0",
+  "PlexURL": "http://localhost:32400",
+  "PlexToken": "your-plex-token-here"
+}
+```
 
 ### Example Docker Configuration
 
+Make sure to map the path to your `config.json` when running the container.
+
 ```bash
-docker run -p 8080:8080 \
-  -e PATH_FILMS="/mnt/media/movies" \
-  -e PATH_SERIES="/mnt/media/tv" \
-  -e PATH_ANIMES="/mnt/media/anime" \
-  -e PLEX_URL="http://localhost:32400" \
-  -e PLEX_TOKEN="your_plex_token" \
+docker run -p 9254:9254 \
+  -v /path/to/your/config.json:/app/config.json:ro \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  ghcr.io/kheopsian/minimalist-dashboard:main
+  -v /mnt/media:/mnt/media:ro \
+  ghcr.io/Kheopsian/minimalist-dashboard:main
 ```
 
 ### Docker Compose
@@ -141,18 +139,49 @@ docker run -p 8080:8080 \
 version: '3.8'
 services:
   dashboard:
-    image: ghcr.io/kheopsian/minimalist-dashboard:main
+    image: ghcr.io/Kheopsian/minimalist-dashboard:main
     ports:
-      - "8080:8080"
-    environment:
-      - PATH_FILMS=/mnt/media/movies
-      - PATH_SERIES=/mnt/media/tv
-      - PATH_ANIMES=/mnt/media/anime
-      - PLEX_URL=http://plex:32400
-      - PLEX_TOKEN=your_plex_token
+      - "9254:9254"
     volumes:
+      - /path/to/your/config.json:/app/config.json:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/media:/mnt/media:ro
+```
+
+### Unraid Installation
+
+For Unraid users, an XML template is provided for a seamless setup:
+1. Copy the `unraid-template.xml` file into your Unraid flash drive under `config/plugins/dockerMan/templates-user/`.
+2. Go to your Unraid **Docker** tab.
+3. Click **Add Container** and select `minimalist-dashboard` from the dropdown list of *User Templates*.
+4. Ensure you place your `config.json` (based on `config.example.json`) in the `/mnt/user/appdata/minimalist-dashboard/` folder before starting the container.
+
+#### ZFS Monitoring on Unraid (Important)
+
+Due to container limitations, the dashboard needs to read ZFS status from a file generated by the Unraid host.
+1. Install the **User Scripts** plugin on Unraid if you haven't already.
+2. Create a new script, set it to run on a **Custom** schedule (e.g., `* * * * *` for every minute).
+3. Paste the following script:
+
+```bash
+#!/bin/bash
+
+# Configuration du dossier de destination
+OUTPUT_DIR="/mnt/user/appdata/minimalist-dashboard"
+OUTPUT_FILE="$OUTPUT_DIR/zpool_status.txt"
+
+# Création du dossier si inexistant
+mkdir -p "$OUTPUT_DIR"
+
+# Génération du statut ZFS (Ajustez 'datapool' avec votre nom de pool ZFS)
+if /sbin/zpool status datapool > "$OUTPUT_FILE"; then
+    echo "Statut ZFS mis à jour : $(date)"
+else
+    echo "Erreur lors de la mise à jour du statut ZFS"
+fi
+
+# Ajustement des permissions
+chmod 644 "$OUTPUT_FILE"
 ```
 
 ## 🏗 Architecture

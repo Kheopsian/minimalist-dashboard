@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"minimalist-dashboard/internal/config"
@@ -23,16 +25,25 @@ func NewStreamingService(cfg *config.Config) *StreamingService {
 
 // GetStreamingInfo retrieves streaming services information
 func (s *StreamingService) GetStreamingInfo() models.StreamingInfo {
-	// -- Part 1: Count files --
+	// -- Part 1: Count media files 1-level deep --
 	countItemsInDir := func(path string) int {
 		if path == "" {
 			return 0
 		}
 		entries, err := os.ReadDir(path)
 		if err != nil {
+			log.Printf("Error accessing path %q: %v\n", path, err)
 			return 0
 		}
-		return len(entries)
+		
+		count := 0
+		for _, e := range entries {
+			// Ignore hidden files/directories (like .DS_Store or .metadata)
+			if !strings.HasPrefix(e.Name(), ".") {
+				count++
+			}
+		}
+		return count
 	}
 	films := countItemsInDir(s.config.PathFilms)
 	series := countItemsInDir(s.config.PathSeries)
