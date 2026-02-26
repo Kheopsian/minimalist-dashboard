@@ -28,7 +28,7 @@ func NewMetricsService(cfg *config.Config) *MetricsService {
 		systemService:    NewSystemService(),
 		cpuService:       NewCPUService(),
 		storageService:   NewStorageService(cfg),
-		zfsService:       NewZFSService(cfg),
+		zfsService:       NewZFSService(),
 		dockerService:    NewDockerService(),
 		streamingService: NewStreamingService(cfg),
 	}

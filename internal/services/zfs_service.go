@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+
+	"minimalist-dashboard/internal/models"
 )
 
 // ZFSService manages ZFS information
@@ -14,6 +17,7 @@ type ZFSService struct{}
 func NewZFSService() *ZFSService {
 	return &ZFSService{}
 }
+func loadDiskModels() map[string]string {
 	models := make(map[string]string)
 	path := "data/disk_models.txt"
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -32,11 +36,6 @@ func NewZFSService() *ZFSService {
 		}
 	}
 	return models
-}
-
-// NewZFSService creates a new ZFS service instance
-func NewZFSService(cfg *config.Config) *ZFSService {
-	return &ZFSService{config: cfg}
 }
 
 // GetZFSConfig retrieves ZFS configuration
