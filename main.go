@@ -31,7 +31,7 @@ func main() {
 	// Start server
 	listenAddr := ":" + cfg.WebUIPort
 	fmt.Printf("Server started. Go to http://localhost:%s\n", cfg.WebUIPort)
-	err := http.ListenAndServe(listenAddr, nil)
+	err = http.ListenAndServe(listenAddr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
